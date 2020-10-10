@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -14,8 +16,12 @@ type Message struct {
 }
 
 func Controller(r *http.Request) (string, error) {
+	// В передаваемом json по полю tag можно
+	//пойти либо по pong1 ручке, либо по pong2.
+
 	msg := Message{}
 	err := json.NewDecoder(r.Body).Decode(&msg)
+
 	if err != nil {
 		return "", err
 	} else {
@@ -24,38 +30,50 @@ func Controller(r *http.Request) (string, error) {
 }
 
 func Ping(w http.ResponseWriter, r *http.Request) {
-	// делаем запрос на сервис (по идее надо это как то все более красиво обернуть но суть в том что платформа должна передать
-	// запрос от клиента нужному сервису в параметрах урл сервиса, тип тела сообщения, и собсна тело запроса которое мы получили передаем
 	tag, err := Controller(r)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	url := fmt.Sprintf("http://localhost:8001/%s", tag)
 
-	resp, err := http.Post(url, "application/json", r.Body)
+	msg := Message{}
+	err = json.NewDecoder(r.Body).Decode(&msg)
+
+	body, err := json.Marshal(msg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	request, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	client := http.Client{}
+	resp, _ := client.Do(request)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
 
-	// resp - ответ от сервиса, приводим его в структурку message
-	msg := Message{}
-	err = json.NewDecoder(resp.Body).Decode(&msg)
+	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// отправляем клиенту
+
+	// resp - ответ от сервиса, приводим его в структурку message
+	msg = Message{}
+	err = json.NewDecoder(bytes.NewBuffer(body)).Decode(&msg)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	_ = json.NewEncoder(w).Encode(msg)
 }
 
 func main() {
-	// создаем новый роутер))
 	r := mux.NewRouter()
 
-	// описываем хэндлер (грубо говоря если клиент сделает запрос по этому урлу какую функцию надо вызвать)
 	r.HandleFunc("/ping", Ping).Methods("GET")
 
-	// запускаем сервер
 	err := http.ListenAndServe(":8000", r)
 	if err != nil {
 		log.Fatal(err)
