@@ -18,7 +18,7 @@ func Pong1(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	msg.Text = msg.Text + " from pong1."
+	msg.Text = "Hello from service: pong1."
 
 	json.NewEncoder(w).Encode(msg)
 }
@@ -30,7 +30,7 @@ func Pong2(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	msg.Text = msg.Text + " from pong2."
+	msg.Text = "Hello from service: pong2."
 
 	_ = json.NewEncoder(w).Encode(msg)
 }
