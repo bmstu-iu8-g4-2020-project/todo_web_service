@@ -3,7 +3,7 @@ package samples
 import "time"
 
 type Task struct {
-        Id               int       `json:"id"`
+	Id               int       `json:"id"`
 	Title            string    `json:"title"`             // Название таска
 	Description      string    `json:"description"`       // Описание таска.
 	NotificationFreq int64     `json:"notification_freq"` // Время, которое спят уведомления

@@ -1,14 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="6102b711-5704-495d-b9dd-ddcda40c0cc9" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/src/database/init_db.sql" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/samples/schedule.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/samples/task.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/samples/user.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/service/main.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/telegram_bot/config.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/telegram_bot/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/todo_web_service.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/todo_web_service.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sources/service/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/sources/service/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/database/init_db.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/platform/main.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/samples/schedule.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/samples/task.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/samples/user.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/service/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/service/.idea/pingPong.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/service/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sources/service/main.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
   </component>
   <component name="GOROOT" path="$USER_HOME$/sdk/go1.15.2" />
   <component name="Git.Settings">
@@ -20,18 +63,47 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
     <property name="go.sdk.automatically.set" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/telegram_bot/config.env" />
+    <property name="restartRequiresConfirmation" value="false" />
   </component>
-  <component name="RunManager" selected="Go Build.go build main.go (1)">
+  <component name="RunManager" selected="Go Build.go build main.go (3)">
     <configuration name="go build main.go (1)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="todo_web_service" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="FILE" />
       <filePath value="$PROJECT_DIR$/sources/platform/main.go" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build main.go (2)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true">
+      <module name="todo_web_service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="true" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+          <ENTRY IS_ENABLED="true" PARSER="env" PATH="src/telegram_bot/config.env" />
+        </ENTRIES>
+      </EXTENSION>
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/src/telegram_bot/main.go" />
+      <directory value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build main.go (3)" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="todo_web_service" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <filePath value="$PROJECT_DIR$/src/service/main.go" />
       <directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
@@ -43,8 +115,15 @@
       <directory value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Go Build.go build main.go (1)" />
+      <item itemvalue="Go Build.go build main.go (2)" />
+      <item itemvalue="Go Build.go build main.go (3)" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build main.go (3)" />
+        <item itemvalue="Go Build.go build main.go (2)" />
         <item itemvalue="Go Build.go build main.go (1)" />
         <item itemvalue="Go Build.go build main.go" />
       </list>
@@ -54,42 +133,77 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
   <component name="WindowStateProjectService">
-    <state x="588" y="214" width="800" height="677" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602364435493">
+    <state x="588" y="214" width="833" height="701" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1602779417013">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state x="588" y="214" width="800" height="677" key="#com.intellij.execution.impl.EditConfigurationsDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1602364435493" />
-    <state width="1807" height="304" key="GridCell.Tab.0.bottom" timestamp="1602365879663">
+    <state x="588" y="214" width="833" height="701" key="#com.intellij.execution.impl.EditConfigurationsDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1602779417013" />
+    <state x="787" y="322" width="424" height="484" key="FileChooserDialogImpl" timestamp="1602779395376">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="1807" height="304" key="GridCell.Tab.0.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1602365879663" />
-    <state width="1807" height="304" key="GridCell.Tab.0.center" timestamp="1602365879661">
+    <state x="787" y="322" width="424" height="484" key="FileChooserDialogImpl/67.27.1853.1053@67.27.1853.1053" timestamp="1602779395376" />
+    <state width="881" height="343" key="GridCell.Tab.0.bottom" timestamp="1602779339063">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="1807" height="304" key="GridCell.Tab.0.center/67.27.1853.1053@67.27.1853.1053" timestamp="1602365879661" />
-    <state width="1807" height="304" key="GridCell.Tab.0.left" timestamp="1602365879660">
+    <state width="881" height="343" key="GridCell.Tab.0.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339063" />
+    <state width="881" height="343" key="GridCell.Tab.0.center" timestamp="1602779339061">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="1807" height="304" key="GridCell.Tab.0.left/67.27.1853.1053@67.27.1853.1053" timestamp="1602365879660" />
-    <state width="1807" height="304" key="GridCell.Tab.0.right" timestamp="1602365879662">
+    <state width="881" height="343" key="GridCell.Tab.0.center/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339061" />
+    <state width="881" height="343" key="GridCell.Tab.0.left" timestamp="1602779339060">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="1807" height="304" key="GridCell.Tab.0.right/67.27.1853.1053@67.27.1853.1053" timestamp="1602365879662" />
-    <state width="881" height="344" key="GridCell.Tab.1.bottom" timestamp="1602356824472">
+    <state width="881" height="343" key="GridCell.Tab.0.left/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339060" />
+    <state width="881" height="343" key="GridCell.Tab.0.right" timestamp="1602779339062">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="881" height="344" key="GridCell.Tab.1.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1602356824472" />
-    <state width="881" height="344" key="GridCell.Tab.1.center" timestamp="1602356824471">
+    <state width="881" height="343" key="GridCell.Tab.0.right/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339062" />
+    <state width="881" height="343" key="GridCell.Tab.1.bottom" timestamp="1602779339067">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="881" height="344" key="GridCell.Tab.1.center/67.27.1853.1053@67.27.1853.1053" timestamp="1602356824471" />
-    <state width="881" height="344" key="GridCell.Tab.1.left" timestamp="1602356824471">
+    <state width="881" height="343" key="GridCell.Tab.1.bottom/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339067" />
+    <state width="881" height="343" key="GridCell.Tab.1.center" timestamp="1602779339064">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="881" height="344" key="GridCell.Tab.1.left/67.27.1853.1053@67.27.1853.1053" timestamp="1602356824471" />
-    <state width="881" height="344" key="GridCell.Tab.1.right" timestamp="1602356824472">
+    <state width="881" height="343" key="GridCell.Tab.1.center/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339064" />
+    <state width="881" height="343" key="GridCell.Tab.1.left" timestamp="1602779339063">
       <screen x="67" y="27" width="1853" height="1053" />
     </state>
-    <state width="881" height="344" key="GridCell.Tab.1.right/67.27.1853.1053@67.27.1853.1053" timestamp="1602356824472" />
+    <state width="881" height="343" key="GridCell.Tab.1.left/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339063" />
+    <state width="881" height="343" key="GridCell.Tab.1.right" timestamp="1602779339066">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state width="881" height="343" key="GridCell.Tab.1.right/67.27.1853.1053@67.27.1853.1053" timestamp="1602779339066" />
+    <state x="1208" y="389" width="467" height="329" key="com.goide.refactor.move.GoMoveDeclarationDialog" timestamp="1602746786950">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="1208" y="389" width="467" height="329" key="com.goide.refactor.move.GoMoveDeclarationDialog/67.27.1853.1053@67.27.1853.1053" timestamp="1602746786950" />
+    <state x="1249" y="243" width="394" height="620" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1602660414398">
+      <screen x="67" y="27" width="1853" height="1053" />
+    </state>
+    <state x="1249" y="243" width="394" height="620" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser/67.27.1853.1053@67.27.1853.1053" timestamp="1602660414398" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/src/telegram_bot/main.go</url>
+          <line>23</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
