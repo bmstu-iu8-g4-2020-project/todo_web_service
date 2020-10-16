@@ -5,13 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/Syfaro/telegram-bot-api"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
 
 const (
-	ServiceUrl = "http://localhost:8080/"
+	DefaultServiceUrl  = "http://localhost:8080/"
+	SuburbanServiceUrl = DefaultServiceUrl + "suburban"
 )
 
 type Message struct {
@@ -64,7 +66,7 @@ func main() {
 					log.Fatal(err)
 				}
 
-				resp, err := http.Post(ServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
+				resp, err := http.Post(DefaultServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -73,6 +75,15 @@ func main() {
 
 				reply = msg.Text
 
+			case "/suburban":
+				resp, err := http.Get(SuburbanServiceUrl)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				body, _ := ioutil.ReadAll(resp.Body)
+
+				reply = string(body)
 			default:
 				reply = update.Message.Text
 			}
