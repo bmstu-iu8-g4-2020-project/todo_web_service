@@ -15,8 +15,8 @@ const (
 	layoutDate = "2006-01-02"
 	layoutTime = "15:04"
 
-	from          = "s9601062" // Chekhov
-	to            = "s2000001" // Kursky Rail Terminal
+	from          = "s2000001" // Kursky Rail Terminal
+	to            = "s9601062" // Chekhov
 	lang          = "ru_RU"
 	transportType = "suburban"
 )
@@ -27,7 +27,7 @@ type Message struct {
 	Text     string `json:"text"`
 }
 
-type ScheduleResponce struct {
+type ScheduleResponse struct {
 	Search   Search
 	Segments []Segment
 }
@@ -67,7 +67,7 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 
 	strResp := string(respBody)
 
-	sr := &ScheduleResponce{}
+	sr := &ScheduleResponse{}
 
 	dataResp := []byte(strResp)
 
