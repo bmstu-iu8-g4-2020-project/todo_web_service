@@ -7,7 +7,7 @@ type Schedule map[Date][]Cell
 
 type Date struct {
 	WeekDay    time.Weekday `json:"weekday"`
-	IsEvenWeek bool         `json:"even_week                             "`
+	IsEvenWeek bool         `json:"even_week"`
 }
 
 type Cell struct {
