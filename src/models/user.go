@@ -1,8 +1,6 @@
 package models
 
 type User struct {
-	Email      string `json:"email"`
-	Login      string `json:"login"`
-	Password   string `json:"password"`
-	IsVerified bool   `json:"is_verified"`
+	Id       int    `json:"id"`
+	UserName string `json:"username"`
 }

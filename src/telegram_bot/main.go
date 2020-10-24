@@ -14,12 +14,19 @@ import (
 const (
 	DefaultServiceUrl  = "http://localhost:8080/"
 	SuburbanServiceUrl = DefaultServiceUrl + "suburban"
+	UserServiceUrl     = DefaultServiceUrl + "user"
+	UserInfoUrl        = DefaultServiceUrl + "user/info"
 )
 
 type Message struct {
 	UserName string `json:"username"`
 	ChatID   int64  `json:"chat_id"`
 	Text     string `json:"text"`
+}
+
+type User struct {
+	Id       int    `json:"id"`
+	UserName string `json:"username"`
 }
 
 func main() {
@@ -55,6 +62,22 @@ func main() {
 			switch update.Message.Text {
 			case "/start":
 				reply = fmt.Sprintf("Hello %s!\n Welcome =)", userName)
+				user := User{
+					Id:       update.Message.From.ID,
+					UserName: userName,
+				}
+
+				bytesRepr, err := json.Marshal(user)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				_, err = http.Post(UserServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				reply += fmt.Sprintf("\nВы авторизованы!")
 			case "/service":
 				msg := Message{
 					UserName: userName,
@@ -74,7 +97,22 @@ func main() {
 				json.NewDecoder(resp.Body).Decode(&msg)
 
 				reply = msg.Text
+			case "/userinfo":
+				user := User{
+					UserName: userName,
+				}
 
+				bytesRepr, err := json.Marshal(user)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				_, err = http.Post(UserServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				reply = fmt.Sprintf("Hello %s. This is your id: %s", user.UserName, user.Id)
 			case "/suburban":
 				resp, err := http.Get(SuburbanServiceUrl)
 				if err != nil {

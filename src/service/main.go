@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -19,18 +20,8 @@ const (
 	to            = "s9601062" // Chekhov
 	lang          = "ru_RU"
 	transportType = "suburban"
+	connStr       = "user=postgres password=mypass dbname=todo_web_service sslmode=disable"
 )
-
-type Message struct {
-	UserName string `json:"username"`
-	ChatID   int64  `json:"chat_id"`
-	Text     string `json:"text"`
-}
-
-type ScheduleResponse struct {
-	Search   Search
-	Segments []Segment
-}
 
 type Search struct {
 	To   StationName
@@ -46,9 +37,21 @@ type Segment struct {
 	Departure time.Time
 	Thread    Thread
 }
+
 type Thread struct {
 	Number string
 	Title  string
+}
+
+type Message struct {
+	UserName string `json:"username"`
+	ChatID   int64  `json:"chat_id"`
+	Text     string `json:"text"`
+}
+
+type ScheduleResponse struct {
+	Search   Search
+	Segments []Segment
 }
 
 func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
@@ -112,13 +115,89 @@ func ExampleHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
+type DataBase struct {
+	*sql.DB
+}
+
+type DatastoreUser interface {
+	AddUserToDB(user User) error
+	UserInfo(user User) (User, error)
+}
+
+type EnvUser struct {
+	Db DatastoreUser
+}
+
+type User struct {
+	Id       int    `json:"id"`
+	UserName string `json:"username"`
+}
+
+func (db *DataBase) AddUserToDB(user User) error {
+	result, err := db.Exec("INSERT INTO tg_user (username, user_id) values ($1, $2)", user.UserName, user.Id)
+	if err != nil {
+		return err
+	}
+
+	log.Println(result.LastInsertId())
+	log.Println(result.RowsAffected())
+	return nil
+}
+
+func (db *DataBase) UserInfo(user User) (User, error) {
+	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", user.Id)
+	err := row.Scan(&user.UserName, &user.Id)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (env *EnvUser) AddUser(w http.ResponseWriter, r *http.Request) {
+	user := User{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = env.Db.AddUserToDB(user)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (env *EnvUser) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	user := User{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	user, err = env.Db.UserInfo(user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.NewEncoder(w).Encode(user)
+}
+
 func main() {
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	envUser := &EnvUser{Db: db}
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", ExampleHandler).Methods("POST")
 	r.HandleFunc("/suburban", SuburbanHandler).Methods("GET")
 
-	err := http.ListenAndServe(":8080", r)
+	r.HandleFunc("/user/info", envUser.GetUserInfo).Methods("POST")
+	r.HandleFunc("/user", envUser.AddUser).Methods("POST")
+
+	err = http.ListenAndServe(":8080", r)
 
 	if err != nil {
 		log.Fatal(err)
