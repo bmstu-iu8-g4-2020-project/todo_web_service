@@ -110,7 +110,7 @@ func main() {
 
 				json.NewDecoder(resp.Body).Decode(&user)
 
-				reply = fmt.Sprintf("Hello %s. This is your id: %s", user.UserName, user.Id)
+				reply = fmt.Sprintf("Hello %s. This is your id: %s", user.UserName, strconv.Itoa(user.Id))
 			case "/suburban":
 				resp, err := http.Get(SuburbanServiceUrl)
 				if err != nil {

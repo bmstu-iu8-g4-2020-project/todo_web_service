@@ -3,7 +3,4 @@
 src/services/.idea
 
 # .env files
-src/main/config.env
-src/telegram_bot/config.env
-src/services/config.env
-src/authentication/config.env
+config.env

@@ -23,7 +23,7 @@ func (db *DataBase) AddUserToDB(user models.User) error {
 }
 
 func (db *DataBase) UserInfo(user models.User) (models.User, error) {
-	row := db.QueryRow("SELECT * FROM tg_user WHERE username= $1", user.UserName)
+	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", user.Id)
 	err := row.Scan(&user.Id, &user.UserName)
 	if err != nil {
 		return models.User{}, err

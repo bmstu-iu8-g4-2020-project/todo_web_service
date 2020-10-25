@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"strconv"
@@ -28,19 +29,15 @@ func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Environment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
-
-	userId, err := strconv.Atoi(r.URL.Query().Get("id"))
+	paramsFromURL := mux.Vars(r)
+	userId, err := strconv.Atoi(paramsFromURL["id"])
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	user := models.User{
 		Id: userId,
-	}
-
-	err = json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		log.Fatal(err)
+		UserName: "nothing",
 	}
 
 	user, err = env.Db.UserInfo(user)
