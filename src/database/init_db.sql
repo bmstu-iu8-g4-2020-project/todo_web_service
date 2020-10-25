@@ -1,8 +1,7 @@
 drop table if exists tg_user cascade;
 
-CREATE TABLE if not exists task_table
+CREATE TABLE if not exists tg_user
 (
-    id       SERIAL PRIMARY KEY UNIQUE,
-    username varchar(255),
-    user_id  integer
+    user_id  integer,
+    username varchar(255)
 );
