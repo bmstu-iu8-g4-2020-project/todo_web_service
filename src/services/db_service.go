@@ -16,6 +16,7 @@ func NewDB(dbUser string, dbPassword string) (*DataBase, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	// check connection
 	if err = db.Ping(); err != nil {
 		return nil, err

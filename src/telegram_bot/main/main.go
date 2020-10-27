@@ -10,6 +10,9 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
+
+	"todo_web_service/src/models"
 )
 
 const (
@@ -17,17 +20,6 @@ const (
 	SuburbanServiceUrl = DefaultServiceUrl + "suburban"
 	UserServiceUrl     = DefaultServiceUrl + "user"
 )
-
-type Message struct {
-	UserName string `json:"username"`
-	ChatID   int64  `json:"chat_id"`
-	Text     string `json:"text"`
-}
-
-type User struct {
-	Id       int    `json:"user_id"`
-	UserName string `json:"username"`
-}
 
 func main() {
 	botToken := os.Getenv("BOT_TOKEN")
@@ -63,7 +55,7 @@ func main() {
 			switch update.Message.Text {
 			case "/start":
 				reply = fmt.Sprintf("Hello %s!\n Welcome =)", userName)
-				user := User{
+				user := models.User{
 					Id:       userId,
 					UserName: userName,
 				}
@@ -79,27 +71,8 @@ func main() {
 				}
 
 				reply += fmt.Sprintf("\nВы авторизованы!")
-			case "/services":
-				msg := Message{
-					UserName: userName,
-					ChatID:   chatID,
-				}
-
-				bytesRepr, err := json.Marshal(msg)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				resp, err := http.Post(DefaultServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				json.NewDecoder(resp.Body).Decode(&msg)
-
-				reply = msg.Text
 			case "/userinfo":
-				user := User{}
+				user := models.User{}
 
 				userInfoUrl := UserServiceUrl + fmt.Sprintf("/%s", strconv.Itoa(userId))
 
@@ -120,6 +93,40 @@ func main() {
 				body, _ := ioutil.ReadAll(resp.Body)
 
 				reply = string(body)
+			case "/add_fast_task":
+				bot.Send(tgbotapi.NewMessage(chatID, "Введите название нового задания."))
+				ftUpdate := <-newUpdate
+				taskName := ftUpdate.Message.Text
+
+				bot.Send(tgbotapi.NewMessage(chatID, "Введите, с какой периодичностью вам будут приходить сообщения. (Например: 1h10m40s)"))
+				for _, err := time.ParseDuration(ftUpdate.Message.Text); err == nil; ftUpdate = <-newUpdate {
+					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Попробуйте ещё раз."))
+				}
+				interval, err := time.ParseDuration(ftUpdate.Message.Text)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				fastTask := models.FastTask{
+					TaskName: taskName,
+					Interval: interval,
+				}
+
+				bytesRepr, err := json.Marshal(fastTask)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				// DefaultServiceUrl/{id}/fast_task
+				fastTaskUrl := DefaultServiceUrl + fmt.Sprintf("/%s", strconv.Itoa(userId)) + "/fast_task"
+
+				_, err = http.Post(fastTaskUrl, "application/json", bytes.NewBuffer(bytesRepr))
+				if err != nil {
+					log.Fatal(err)
+				}
+
+
+
 			default:
 				reply = update.Message.Text
 			}

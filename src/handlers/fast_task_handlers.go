@@ -1,13 +1,33 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
+	"todo_web_service/src/models"
+	"todo_web_service/src/services"
 )
 
-func (env *UserEnvironment) AddFastTask(w http.ResponseWriter, r *http.Request) {}
+type FastTaskEnvironment struct {
+	Db services.DatastoreFastTask
+}
 
-func (env *UserEnvironment) GetFastTask(w http.ResponseWriter, r *http.Request) {}
+func (env *FastTaskEnvironment) AddFastTask(w http.ResponseWriter, r *http.Request) {
+	fastTask := models.FastTask{}
+	err := json.NewDecoder(r.Body).Decode(&fastTask)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-func (env *UserEnvironment) UpdateFastTask(w http.ResponseWriter, r *http.Request) {}
+	err = env.Db.AddFastTask(fastTask)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+}
 
-func (env *UserEnvironment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {}
+func (env *FastTaskEnvironment) GetFastTask(w http.ResponseWriter, r *http.Request) {}
+
+func (env *FastTaskEnvironment) UpdateFastTask(w http.ResponseWriter, r *http.Request) {}
+
+func (env *FastTaskEnvironment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {}
