@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -17,9 +16,7 @@ func main() {
 	dbUser := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 
-	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=todownik sslmode=disable", dbUser, dbPassword)
-
-	db, err := services.NewDB(dbSourceName)
+	db, err := services.NewDB(dbUser, dbPassword)
 	if err != nil {
 		log.Fatal(err)
 	}

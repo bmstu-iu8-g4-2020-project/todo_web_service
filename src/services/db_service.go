@@ -9,7 +9,9 @@ type DataBase struct {
 	*sql.DB
 }
 
-func NewDB(dbSourceName string) (*DataBase, error) {
+func NewDB(dbUser string, dbPassword string) (*DataBase, error) {
+	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=todownik sslmode=disable", dbUser, dbPassword)
+
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {
 		return nil, err

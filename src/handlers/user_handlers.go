@@ -20,11 +20,14 @@ func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
+
 	err = env.Db.AddUserToDB(user)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 }
 
@@ -32,18 +35,20 @@ func (env *Environment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	paramsFromURL := mux.Vars(r)
 	userId, err := strconv.Atoi(paramsFromURL["id"])
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	user := models.User{
 		Id: userId,
-		UserName: "nothing",
 	}
 
 	user, err = env.Db.UserInfo(user)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
+
 	json.NewEncoder(w).Encode(user)
 }
 

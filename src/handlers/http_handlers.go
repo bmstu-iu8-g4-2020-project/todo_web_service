@@ -4,17 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
 	"todo_web_service/src/models"
 )
-
-//func MakeHTTPHandlers(router mux.Router)  {
-//	// User handlers. TODO: change nil to Methods.
-//	router.HandleFunc("/user/info", nil)
-//}
 
 const (
 	layoutDate = "2006-01-02"
@@ -24,7 +18,6 @@ const (
 	to            = "s9601062" // Chekhov
 	lang          = "ru_RU"
 	transportType = "suburban"
-	connStr       = "user=postgres password=mypass dbname=todo_web_service sslmode=disable"
 )
 
 func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +28,8 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -49,7 +43,8 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = json.Unmarshal(dataResp, sr)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	fmt.Fprintln(w, "Три ближайшие электрички в направлении:\n", sr.Search.From.Title, "-->", sr.Search.To.Title)
