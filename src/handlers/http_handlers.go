@@ -1,14 +1,13 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
+	"todo_web_service/src/models"
 )
 
 const (
@@ -21,36 +20,6 @@ const (
 	transportType = "suburban"
 )
 
-type Message struct {
-	UserName string `json:"username"`
-	ChatID   int64  `json:"chat_id"`
-	Text     string `json:"text"`
-}
-
-type ScheduleResponse struct {
-	Search   Search
-	Segments []Segment
-}
-
-type Search struct {
-	To   StationName
-	From StationName
-}
-
-type StationName struct {
-	Title string
-}
-
-type Segment struct {
-	Arrival   time.Time
-	Departure time.Time
-	Thread    Thread
-}
-type Thread struct {
-	Number string
-	Title  string
-}
-
 func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 	apiKey := os.Getenv("API_KEY")
 
@@ -59,7 +28,8 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 	defer resp.Body.Close()
 
@@ -67,13 +37,14 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 
 	strResp := string(respBody)
 
-	sr := &ScheduleResponse{}
+	sr := &models.ScheduleResponse{}
 
 	dataResp := []byte(strResp)
 
 	err = json.Unmarshal(dataResp, sr)
 	if err != nil {
-		log.Fatal(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	fmt.Fprintln(w, "Три ближайшие электрички в направлении:\n", sr.Search.From.Title, "-->", sr.Search.To.Title)
@@ -98,29 +69,4 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintln(w, "\n\nДанные предоставлены сервисом Яндекс.Расписания: http://rasp.yandex.ru/")
-}
-
-func ExampleHandler(w http.ResponseWriter, r *http.Request) {
-	msg := Message{}
-	err := json.NewDecoder(r.Body).Decode(&msg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	msg.Text = fmt.Sprintf("Hello %s! I'm first testing service.", msg.UserName)
-
-	json.NewEncoder(w).Encode(msg)
-}
-
-func main() {
-	r := mux.NewRouter()
-
-	r.HandleFunc("/", ExampleHandler).Methods("POST")
-	r.HandleFunc("/suburban", SuburbanHandler).Methods("GET")
-
-	err := http.ListenAndServe(":8080", r)
-
-	if err != nil {
-		log.Fatal(err)
-	}
 }

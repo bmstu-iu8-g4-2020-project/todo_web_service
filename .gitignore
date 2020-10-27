@@ -1,5 +1,6 @@
+# build files
 *.idea
-*src/service/.idea
+src/services/.idea
 
-src/telegram_bot/config.env
-src/service/config.env
+# .env files
+config.env
