@@ -7,8 +7,9 @@ CREATE TABLE if not exists tg_user (
 );
 
 CREATE TABLE if not exists fast_task (
-    id              serial primary key,
-    assignee_id     integer UNIQUE references tg_user(user_id),
-    task_name       varchar(255),
-    notify_interval timestamp
+    id serial primary key,
+    assignee_id integer references tg_user(user_id),
+    chat_id bigint,
+    task_name varchar(255),
+    notify_interval bigint
 );

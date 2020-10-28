@@ -21,6 +21,48 @@ const (
 	UserServiceUrl     = DefaultServiceUrl + "user"
 )
 
+const (
+	emojiAttention = "📢"
+)
+
+func CheckFastTasks(bot **tgbotapi.BotAPI) {
+	// Содержит время дедлайнов отправки напоминаний о задачах. {id -> time.Time}
+	var deadlineTimings map[int]time.Time
+	for ; ; {
+		var allFastTasks []models.FastTask
+		resp, err := http.Get(DefaultServiceUrl + "fast_task/")
+		if err != nil {
+			log.Fatal(err)
+		}
+		json.NewDecoder(resp.Body).Decode(&allFastTasks)
+
+		// Заполнение дедлайнов.
+		for i := range allFastTasks {
+			ftId := allFastTasks[i].Id
+			// Если время дедлайна нет в мапе, добавляем его.
+			if _, inMap := deadlineTimings[ftId]; !inMap {
+				deadlineTimings[ftId] = time.Now().Add(allFastTasks[i].Interval)
+			}
+		}
+
+		for i := range allFastTasks {
+			currFastTask := allFastTasks[i]
+			ftId := allFastTasks[i].Id
+			// Если дедлайн "просрочен", отправляем напоминание пользователю
+			// и обновляем время следующего дедлайна.
+			if time.Now().After(deadlineTimings[ftId]) {
+				// Чтобы отправить сообщение, нам нужен ChatID...
+				(*bot).Send(tgbotapi.NewMessage(currFastTask.ChatId, emojiAttention+currFastTask.TaskName))
+
+				// Увеличиваем дедлайн на величину интервала.
+				deadlineTimings[ftId] = deadlineTimings[ftId].Add(allFastTasks[i].Interval)
+			}
+		}
+
+		time.Sleep(time.Second * 10)
+	}
+}
+
 func main() {
 	botToken := os.Getenv("BOT_TOKEN")
 
@@ -38,10 +80,12 @@ func main() {
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	// инициализируем канал, куда будут прилетать обновления от API
-	var userConfig tgbotapi.UpdateConfig = tgbotapi.NewUpdate(0)
+	var userConfig = tgbotapi.NewUpdate(0)
 
 	userConfig.Timeout = 60
 	newUpdate, _ := bot.GetUpdatesChan(userConfig)
+
+	go CheckFastTasks(&bot)
 
 	// читаем обновления из канала
 	for {
@@ -108,8 +152,10 @@ func main() {
 				}
 
 				fastTask := models.FastTask{
-					TaskName: taskName,
-					Interval: interval,
+					AssigneeId: userId,
+					TaskName:   taskName,
+					ChatId:     chatID,
+					Interval:   interval,
 				}
 
 				bytesRepr, err := json.Marshal(fastTask)
@@ -124,8 +170,6 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-
-
 
 			default:
 				reply = update.Message.Text

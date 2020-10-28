@@ -10,11 +10,11 @@ import (
 	"todo_web_service/src/services"
 )
 
-type UserEnvironment struct {
-	Db services.DatastoreUser
+type Environment struct {
+	Db services.Datastore
 }
 
-func (env *UserEnvironment) AddUser(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -29,7 +29,7 @@ func (env *UserEnvironment) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (env *UserEnvironment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
 	paramsFromURL := mux.Vars(r)
 	userId, err := strconv.Atoi(paramsFromURL["id"])
 	if err != nil {

@@ -22,20 +22,20 @@ func main() {
 	}
 	defer db.Close()
 
-	envUser := &handlers.UserEnvironment{Db: db}
-	envFastTask := &handlers.FastTaskEnvironment{Db: db}
+	env := &handlers.Environment{Db: db}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods("GET")
 
-	r.HandleFunc("/user", envUser.AddUser).Methods("POST")
-	r.HandleFunc("/user/{id}", envUser.GetUserInfo).Methods("GET")
+	r.HandleFunc("/user", env.AddUser).Methods("POST")
+	r.HandleFunc("/user/{id}", env.GetUserInfo).Methods("GET")
 
-	r.HandleFunc("/{id}/fast_task", envFastTask.AddFastTask).Methods("POST")
-	r.HandleFunc("/{id}/fast_task/", envFastTask.GetFastTask).Methods("GET")
-	r.HandleFunc("/{id}/fast_task/", envFastTask.UpdateFastTask).Methods("PUT")
-	r.HandleFunc("/{id}/fast_task/", envFastTask.DeleteFastTask).Methods("DELETE")
+	r.HandleFunc("/{id}/fast_task/", env.AddFastTask).Methods("POST")
+	r.HandleFunc("/fast_task/", env.GetAllFastTasks).Methods("GET")
+//	r.HandleFunc("/{id}/fast_task/", env.GetFastTask).Methods("GET")
+	r.HandleFunc("/{id}/fast_task/", env.UpdateFastTask).Methods("PUT")
+	r.HandleFunc("/{id}/fast_task/", env.DeleteFastTask).Methods("DELETE")
 
 	err = http.ListenAndServe(":8080", r)
 

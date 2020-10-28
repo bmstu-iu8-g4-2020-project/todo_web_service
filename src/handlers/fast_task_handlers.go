@@ -4,14 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"todo_web_service/src/models"
-	"todo_web_service/src/services"
 )
 
-type FastTaskEnvironment struct {
-	Db services.DatastoreFastTask
-}
-
-func (env *FastTaskEnvironment) AddFastTask(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
 	fastTask := models.FastTask{}
 	err := json.NewDecoder(r.Body).Decode(&fastTask)
 	if err != nil {
@@ -26,8 +21,20 @@ func (env *FastTaskEnvironment) AddFastTask(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (env *FastTaskEnvironment) GetFastTask(w http.ResponseWriter, r *http.Request) {}
+func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) {
+	fastTasks, err := env.Db.GetAllFastTasks()
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
-func (env *FastTaskEnvironment) UpdateFastTask(w http.ResponseWriter, r *http.Request) {}
+	json.NewEncoder(w).Encode(fastTasks)
+}
 
-func (env *FastTaskEnvironment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {}
+// func (env *Environment) GetFastTask(w http.ResponseWriter, r *http.Request) {}
+
+func (env *Environment) UpdateFastTask(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {}
