@@ -7,9 +7,9 @@ import (
 )
 
 func (db *DataBase) AddFastTask(fastTask models.FastTask) error {
-	millisecondInterval := fastTask.Interval.Milliseconds()
-	result, err := db.Exec("INSERT INTO fast_task (assignee_id, chat_id, task_name, notify_interval) values ($1, $2, $3, $4)",
-		fastTask.AssigneeId, fastTask.ChatId, fastTask.TaskName, millisecondInterval)
+	millisecondInterval := fastTask.NotifyInterval.Milliseconds()
+	result, err := db.Exec("INSERT INTO fast_task (assignee_id, chat_id, task_name, notify_interval, deadline) values ($1, $2, $3, $4, $5)",
+		fastTask.AssigneeId, fastTask.ChatId, fastTask.TaskName, millisecondInterval, fastTask.Deadline)
 	if err != nil {
 		return err
 	}
@@ -31,12 +31,12 @@ func (db *DataBase) GetAllFastTasks() ([]models.FastTask, error) {
 
 		var millisecondInterval int64
 		err = rows.Scan(&fastTask.Id, &fastTask.AssigneeId, &fastTask.ChatId,
-			&fastTask.TaskName, &millisecondInterval)
+			&fastTask.TaskName, &millisecondInterval, &fastTask.Deadline)
 		if err != nil {
 			return []models.FastTask{}, err
 		}
 
-		fastTask.Interval = time.Duration(millisecondInterval * 1000000)
+		fastTask.NotifyInterval = time.Duration(millisecondInterval * 1000000)
 
 		ftStorage = append(ftStorage, fastTask)
 	}

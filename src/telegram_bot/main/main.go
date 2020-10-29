@@ -28,7 +28,7 @@ const (
 func CheckFastTasks(bot **tgbotapi.BotAPI) {
 	// Содержит время дедлайнов отправки напоминаний о задачах. {id -> time.Time}
 	var deadlineTimings map[int]time.Time
-	for ; ; {
+	for {
 		var allFastTasks []models.FastTask
 		resp, err := http.Get(DefaultServiceUrl + "fast_task/")
 		if err != nil {
@@ -41,7 +41,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			ftId := allFastTasks[i].Id
 			// Если время дедлайна нет в мапе, добавляем его.
 			if _, inMap := deadlineTimings[ftId]; !inMap {
-				deadlineTimings[ftId] = time.Now().Add(allFastTasks[i].Interval)
+				deadlineTimings[ftId] = time.Now().Add(allFastTasks[i].NotifyInterval)
 			}
 		}
 
@@ -55,7 +55,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 				(*bot).Send(tgbotapi.NewMessage(currFastTask.ChatId, emojiAttention+currFastTask.TaskName))
 
 				// Увеличиваем дедлайн на величину интервала.
-				deadlineTimings[ftId] = deadlineTimings[ftId].Add(allFastTasks[i].Interval)
+				deadlineTimings[ftId] = deadlineTimings[ftId].Add(allFastTasks[i].NotifyInterval)
 			}
 		}
 
@@ -143,19 +143,25 @@ func main() {
 				taskName := ftUpdate.Message.Text
 
 				bot.Send(tgbotapi.NewMessage(chatID, "Введите, с какой периодичностью вам будут приходить сообщения. (Например: 1h10m40s)"))
-				for _, err := time.ParseDuration(ftUpdate.Message.Text); err == nil; ftUpdate = <-newUpdate {
-					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Попробуйте ещё раз."))
-				}
+				ftUpdate = <-newUpdate
 				interval, err := time.ParseDuration(ftUpdate.Message.Text)
 				if err != nil {
-					log.Fatal(err)
+					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
+				}
+
+				for ftUpdate = <-newUpdate; err != nil; {
+					interval, err = time.ParseDuration(ftUpdate.Message.Text)
+					if err != nil {
+						bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
+					}
 				}
 
 				fastTask := models.FastTask{
-					AssigneeId: userId,
-					TaskName:   taskName,
-					ChatId:     chatID,
-					Interval:   interval,
+					AssigneeId:     userId,
+					TaskName:       taskName,
+					ChatId:         chatID,
+					NotifyInterval: interval,
+					Deadline:       time.Now().Add(interval),
 				}
 
 				bytesRepr, err := json.Marshal(fastTask)
