@@ -27,7 +27,7 @@ const (
 
 func CheckFastTasks(bot **tgbotapi.BotAPI) {
 	// Содержит время дедлайнов отправки напоминаний о задачах. {id -> time.Time}
-	var deadlineTimings map[int]time.Time
+	deadlineTimings := make(map[int]time.Time)
 	for {
 		var allFastTasks []models.FastTask
 		resp, err := http.Get(DefaultServiceUrl + "fast_task/")
@@ -147,13 +147,7 @@ func main() {
 				interval, err := time.ParseDuration(ftUpdate.Message.Text)
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
-				}
-
-				for ftUpdate = <-newUpdate; err != nil; {
-					interval, err = time.ParseDuration(ftUpdate.Message.Text)
-					if err != nil {
-						bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
-					}
+					continue
 				}
 
 				fastTask := models.FastTask{
@@ -170,7 +164,7 @@ func main() {
 				}
 
 				// DefaultServiceUrl/{id}/fast_task
-				fastTaskUrl := DefaultServiceUrl + fmt.Sprintf("/%s", strconv.Itoa(userId)) + "/fast_task"
+				fastTaskUrl := DefaultServiceUrl + fmt.Sprintf("%s", strconv.Itoa(userId)) + "/fast_task/"
 
 				_, err = http.Post(fastTaskUrl, "application/json", bytes.NewBuffer(bytesRepr))
 				if err != nil {
