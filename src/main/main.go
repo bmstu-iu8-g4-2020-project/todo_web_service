@@ -26,16 +26,16 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods("GET")
+	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods(http.MethodGet)
 
-	r.HandleFunc("/user", env.AddUser).Methods("POST")
-	r.HandleFunc("/user/{id}", env.GetUserInfo).Methods("GET")
+	r.HandleFunc("/user", env.AddUser).Methods(http.MethodPost)
+	r.HandleFunc("/user/{id}", env.GetUserInfo).Methods(http.MethodGet)
 
-	r.HandleFunc("/{id}/fast_task/", env.AddFastTask).Methods("POST")
-	r.HandleFunc("/fast_task/", env.GetAllFastTasks).Methods("GET")
-	//	r.HandleFunc("/{id}/fast_task/", env.GetFastTask).Methods("GET")
-	//	r.HandleFunc("/{id}/fast_task/", env.UpdateFastTask).Methods("PUT")
-	//	r.HandleFunc("/{id}/fast_task/", env.DeleteFastTask).Methods("DELETE")
+	r.HandleFunc("/{id}/fast_task/", env.AddFastTask).Methods(http.MethodPost)
+	r.HandleFunc("/fast_task/", env.GetAllFastTasks).Methods(http.MethodGet)
+	r.HandleFunc("/{id}/fast_task/", env.GetFastTasks).Methods(http.MethodGet)
+	r.HandleFunc("/fast_task/update", env.UpdateFastTasks).Methods(http.MethodPut)
+	r.HandleFunc("/{id}/fast_task/{ft_id}", env.DeleteFastTask).Methods(http.MethodDelete)
 
 	err = http.ListenAndServe(":8080", r)
 

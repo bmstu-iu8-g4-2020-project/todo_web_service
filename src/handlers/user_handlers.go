@@ -30,18 +30,13 @@ func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Environment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	paramsFromURL := mux.Vars(r)
-	userId, err := strconv.Atoi(paramsFromURL["id"])
+	userId, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	user := models.User{
-		Id: userId,
-	}
-
-	user, err = env.Db.UserInfo(user)
+	user, err := env.Db.UserInfo(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return

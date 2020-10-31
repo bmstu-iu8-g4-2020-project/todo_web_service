@@ -17,8 +17,9 @@ func (db *DataBase) AddUser(user models.User) error {
 	return nil
 }
 
-func (db *DataBase) UserInfo(user models.User) (models.User, error) {
-	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", user.Id)
+func (db *DataBase) UserInfo(userId int) (models.User, error) {
+	user := models.User{}
+	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", userId)
 	err := row.Scan(&user.Id, &user.UserName)
 	if err != nil {
 		return models.User{}, err

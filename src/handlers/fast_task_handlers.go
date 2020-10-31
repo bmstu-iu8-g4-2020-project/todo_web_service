@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 	"todo_web_service/src/models"
 )
 
@@ -31,10 +33,36 @@ func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(fastTasks)
 }
 
-// func (env *Environment) GetFastTask(w http.ResponseWriter, r *http.Request) {}
+func (env *Environment) GetFastTasks(w http.ResponseWriter, r *http.Request) {
+	assigneeId, err := strconv.Atoi(mux.Vars(r)["id"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-func (env *Environment) UpdateFastTask(w http.ResponseWriter, r *http.Request) {
+	fastTasks, err := env.Db.GetFastTasks(assigneeId)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
+	json.NewEncoder(w).Encode(fastTasks)
+}
+
+func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) {
+	var fastTasks []models.FastTask
+	err := json.NewDecoder(r.Body).Decode(&fastTasks)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = env.Db.UpdateFastTasks(fastTasks)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
 }
 
 func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {}

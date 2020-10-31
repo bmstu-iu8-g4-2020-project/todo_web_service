@@ -13,49 +13,51 @@ import (
 	"time"
 
 	"todo_web_service/src/models"
+	"todo_web_service/src/telegram_bot/fast_task"
 )
 
 const (
 	DefaultServiceUrl  = "http://localhost:8080/"
 	SuburbanServiceUrl = DefaultServiceUrl + "suburban"
 	UserServiceUrl     = DefaultServiceUrl + "user"
+	FastTaskPostfix    = "fast_task/"
 )
 
 const (
-	emojiAttention = "📢"
+	emojiAttention = "📢: "
+	emojiFastTask  = "⭕ "
 )
 
 func CheckFastTasks(bot **tgbotapi.BotAPI) {
-	// Содержит время дедлайнов отправки напоминаний о задачах. {id -> time.Time}
-	deadlineTimings := make(map[int]time.Time)
 	for {
 		var allFastTasks []models.FastTask
-		resp, err := http.Get(DefaultServiceUrl + "fast_task/")
+		resp, err := http.Get(DefaultServiceUrl + FastTaskPostfix)
 		if err != nil {
 			log.Fatal(err)
 		}
 		json.NewDecoder(resp.Body).Decode(&allFastTasks)
 
-		// Заполнение дедлайнов.
-		for i := range allFastTasks {
-			ftId := allFastTasks[i].Id
-			// Если время дедлайна нет в мапе, добавляем его.
-			if _, inMap := deadlineTimings[ftId]; !inMap {
-				deadlineTimings[ftId] = time.Now().Add(allFastTasks[i].NotifyInterval)
-			}
-		}
-
+		var batch []models.FastTask // Создаём батч для обновления нескольких дедлайнов.
 		for i := range allFastTasks {
 			currFastTask := allFastTasks[i]
-			ftId := allFastTasks[i].Id
 			// Если дедлайн "просрочен", отправляем напоминание пользователю
 			// и обновляем время следующего дедлайна.
-			if time.Now().After(deadlineTimings[ftId]) {
-				// Чтобы отправить сообщение, нам нужен ChatID...
+			if time.Now().After(currFastTask.Deadline) {
+				// Отсылаем напоминание пользователю.
 				(*bot).Send(tgbotapi.NewMessage(currFastTask.ChatId, emojiAttention+currFastTask.TaskName))
-
-				// Увеличиваем дедлайн на величину интервала.
-				deadlineTimings[ftId] = deadlineTimings[ftId].Add(allFastTasks[i].NotifyInterval)
+				// Добавляем задачу в батч.
+				batch = append(batch, currFastTask)
+			}
+		}
+		if len(batch) != 0 {
+			bytesRepr, err := json.Marshal(batch)
+			if err != nil {
+				log.Fatal(err)
+			}
+			url := DefaultServiceUrl + FastTaskPostfix + "update"
+			_, err = http.Post(http.MethodPut, url, bytes.NewBuffer(bytesRepr))
+			if err != nil {
+				log.Fatal(err)
 			}
 		}
 
@@ -170,6 +172,37 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
+
+				reply = "Задача успешно добавлена!"
+			case "/fast_tasks":
+				// Получаем все задачи данного пользователя.
+				_, reply, err = fast_task.OutputFastTasks(userId)
+				if err != nil {
+					log.Fatal(err)
+				}
+			case "/delete_fast_task":
+				bot.Send(tgbotapi.NewMessage(chatID, "Какая из этих задач уже выполнена? (введите её порядковый номер)"))
+				fastTasks, output, err := fast_task.OutputFastTasks(userId)
+				if err != nil {
+					log.Fatal(err)
+				}
+				bot.Send(tgbotapi.NewMessage(chatID, output))
+
+				// Считываем порядковый номер задачи, которую нужно удалить.
+				ftUpdate := <-newUpdate
+				ftNumber, err := strconv.Atoi(ftUpdate.Message.Text)
+				if err != nil {
+					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, вы ввели не число. Введите команду ещё раз."))
+					continue
+				}
+
+				if ftNumber < len(fastTasks)-1 && ftNumber > 0 {
+					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, такого дела не существует. Введите команду ещё раз."))
+					continue
+				}
+
+				// fastTaskDeleteUrl := DefaultServiceUrl + fmt.Sprintf("%v/fast_task/%v", userId,  fastTasks[ftNumber - 1].Id)
+				//http.NewRequest(http.MethodDelete, fastTaskDeleteUrl, bytes.NewBuffer()) TODO: DELETE
 
 			default:
 				reply = update.Message.Text
