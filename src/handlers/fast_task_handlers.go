@@ -12,13 +12,13 @@ func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
 	fastTask := models.FastTask{}
 	err := json.NewDecoder(r.Body).Decode(&fastTask)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	err = env.Db.AddFastTask(fastTask)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 }
@@ -26,7 +26,7 @@ func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
 func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) {
 	fastTasks, err := env.Db.GetAllFastTasks()
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -34,9 +34,10 @@ func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) 
 }
 
 func (env *Environment) GetFastTasks(w http.ResponseWriter, r *http.Request) {
-	assigneeId, err := strconv.Atoi(mux.Vars(r)["id"])
+	paramFromURL := mux.Vars(r)
+	assigneeId, err := strconv.Atoi(paramFromURL["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
@@ -53,7 +54,7 @@ func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) 
 	var fastTasks []models.FastTask
 	err := json.NewDecoder(r.Body).Decode(&fastTasks)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
@@ -66,16 +67,17 @@ func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) 
 }
 
 func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {
-	ftId, err := strconv.Atoi(mux.Vars(r)["ft_id"])
+	paramFromURL := mux.Vars(r)
+	ftId, err := strconv.Atoi(paramFromURL["ft_id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	err = env.Db.DeleteFastTask(ftId)
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotModified)
+		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
 		return
 	}
 }

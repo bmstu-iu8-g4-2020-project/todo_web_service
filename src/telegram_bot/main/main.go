@@ -144,8 +144,9 @@ func main() {
 					continue
 				}
 
+				// .../{id}/fast_task/{ft_id}
 				fastTaskDeleteUrl := DefaultServiceUrl + fmt.Sprintf("%v/fast_task/%v", userId, fastTasks[ftNumber-1].Id)
-				_, err = http.NewRequest(http.MethodDelete, fastTaskDeleteUrl, nil)
+				_, err = http.Post(http.MethodDelete, fastTaskDeleteUrl, nil)
 				if err != nil {
 					log.Fatal(err)
 				}
