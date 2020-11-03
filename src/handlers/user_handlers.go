@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -20,46 +18,29 @@ func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	err = env.Db.AddUserToDB(user)
+	err = env.Db.AddUser(user)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 }
 
 func (env *Environment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	paramsFromURL := mux.Vars(r)
-	userId, err := strconv.Atoi(paramsFromURL["id"])
+	userId, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	user := models.User{
-		Id: userId,
-	}
-
-	user, err = env.Db.UserInfo(user)
+	user, err := env.Db.UserInfo(userId)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
 	json.NewEncoder(w).Encode(user)
-}
-
-func ExampleHandler(w http.ResponseWriter, r *http.Request) {
-	msg := models.Message{}
-	err := json.NewDecoder(r.Body).Decode(&msg)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	msg.Text = fmt.Sprintf("Hello %s! I'm first testing services.", msg.UserName)
-
-	json.NewEncoder(w).Encode(msg)
 }

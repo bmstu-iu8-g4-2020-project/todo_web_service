@@ -3,20 +3,35 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"todo_web_service/src/models"
 )
 
 type DataBase struct {
 	*sql.DB
 }
 
-func NewDB(dbUser string, dbPassword string) (*DataBase, error) {
-	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=todownik sslmode=disable", dbUser, dbPassword)
+type Datastore interface {
+	// User
+	AddUser(user models.User) error
+	UserInfo(userId int) (models.User, error)
+
+	// FastTask
+	AddFastTask(fastTask models.FastTask) error
+	GetAllFastTasks() ([]models.FastTask, error)
+	GetFastTasks(assigneeId int) ([]models.FastTask, error)
+	UpdateFastTasks(fastTasks []models.FastTask) error
+	DeleteFastTask(ftId int) error
+}
+
+func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
+	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName)
 
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {
 		return nil, err
 	}
-	// check connection
+
+	// Check connection
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}

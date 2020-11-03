@@ -6,12 +6,7 @@ import (
 	"todo_web_service/src/models"
 )
 
-type Datastore interface {
-	AddUserToDB(user models.User) error
-	UserInfo(user models.User) (models.User, error)
-}
-
-func (db *DataBase) AddUserToDB(user models.User) error {
+func (db *DataBase) AddUser(user models.User) error {
 	result, err := db.Exec("INSERT INTO tg_user (username, user_id) values ($1, $2)", user.UserName, user.Id)
 	if err != nil {
 		return err
@@ -22,8 +17,9 @@ func (db *DataBase) AddUserToDB(user models.User) error {
 	return nil
 }
 
-func (db *DataBase) UserInfo(user models.User) (models.User, error) {
-	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", user.Id)
+func (db *DataBase) UserInfo(userId int) (models.User, error) {
+	user := models.User{}
+	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", userId)
 	err := row.Scan(&user.Id, &user.UserName)
 	if err != nil {
 		return models.User{}, err
