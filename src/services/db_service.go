@@ -3,7 +3,6 @@ package services
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"todo_web_service/src/models"
 )
 
@@ -24,9 +23,8 @@ type Datastore interface {
 	DeleteFastTask(ftId int) error
 }
 
-func NewDB(dbUser string, dbPassword string) (*DataBase, error) {
-	log.Println(dbUser, dbPassword)
-	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=todoapp2 sslmode=disable", dbUser, dbPassword)
+func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
+	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName)
 
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {

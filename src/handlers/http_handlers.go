@@ -14,8 +14,8 @@ const (
 	layoutDate = "2006-01-02"
 	layoutTime = "15:04"
 
-	from          = "s2000001" // Kursky Rail Terminal
-	to            = "s9601062" // Chekhov
+	from          = "s9601062" // Kursky Rail Terminal
+	to            = "s2000001" // Chekhov
 	lang          = "ru_RU"
 	transportType = "suburban"
 )

@@ -13,10 +13,11 @@ import (
 )
 
 func main() {
+	dbName := os.Getenv("DB_NAME")
 	dbUser := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 
-	db, err := services.NewDB(dbUser, dbPassword)
+	db, err := services.NewDB(dbName, dbUser, dbPassword)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +35,7 @@ func main() {
 	r.HandleFunc("/{id}/fast_task/", env.AddFastTask).Methods(http.MethodPost)
 	r.HandleFunc("/fast_task/", env.GetAllFastTasks).Methods(http.MethodGet)
 	r.HandleFunc("/{id}/fast_task/", env.GetFastTasks).Methods(http.MethodGet)
-	r.HandleFunc("/fast_task/update", env.UpdateFastTasks).Methods(http.MethodPost)
+	r.HandleFunc("/fast_task/update", env.UpdateFastTasks).Methods(http.MethodPut)
 	r.HandleFunc("/{id}/fast_task/{ft_id}", env.DeleteFastTask).Methods(http.MethodDelete)
 
 	err = http.ListenAndServe(":8080", r)

@@ -14,7 +14,6 @@ func (db *DataBase) AddFastTask(fastTask models.FastTask) error {
 		return err
 	}
 
-	log.Println(result.LastInsertId())
 	log.Println(result.RowsAffected())
 	return nil
 }
@@ -70,12 +69,11 @@ func (db *DataBase) GetFastTasks(assigneeId int) ([]models.FastTask, error) {
 }
 
 func (db *DataBase) UpdateFastTasks(fastTasks []models.FastTask) error {
-	for i := range fastTasks {
-		currFastTask := fastTasks[i]
-		newDeadline := currFastTask.Deadline.Add(currFastTask.NotifyInterval)
+	for _, currTask := range fastTasks {
+		newDeadline := currTask.Deadline.Add(currTask.NotifyInterval)
 
 		result, err := db.Exec("UPDATE fast_task SET deadline = $1 WHERE id = $2;",
-			newDeadline, currFastTask.Id)
+			newDeadline, currTask.Id)
 		if err != nil {
 			return err
 		}

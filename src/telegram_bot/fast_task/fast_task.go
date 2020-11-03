@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 	"todo_web_service/src/models"
+	"todo_web_service/src/telegram_bot/client"
 
 	"github.com/Syfaro/telegram-bot-api"
 )
@@ -32,15 +33,16 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 		json.NewDecoder(resp.Body).Decode(&allFastTasks)
 
 		var batch []models.FastTask // Создаём батч для обновления нескольких дедлайнов.
-		for i := range allFastTasks {
-			currFastTask := allFastTasks[i]
+		for _, currTask := range allFastTasks {
+			now := time.Now()
+			deadline := currTask.Deadline
 			// Если дедлайн "просрочен", отправляем напоминание пользователю
 			// и обновляем время следующего дедлайна.
-			if time.Now().After(currFastTask.Deadline) {
+			if now.After(deadline) {
 				// Отсылаем напоминание пользователю.
-				(*bot).Send(tgbotapi.NewMessage(currFastTask.ChatId, emojiAttention+currFastTask.TaskName))
+				(*bot).Send(tgbotapi.NewMessage(currTask.ChatId, emojiAttention+currTask.TaskName))
 				// Добавляем задачу в батч.
-				batch = append(batch, currFastTask)
+				batch = append(batch, currTask)
 			}
 		}
 		if len(batch) != 0 {
@@ -49,13 +51,15 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 				log.Fatal(err)
 			}
 			url := DefaultServiceUrl + FastTaskPostfix + "update"
-			_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
+
+			_, err = client.Put(url, bytes.NewBuffer(bytesRepr))
+
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 1)
 	}
 }
 
@@ -69,7 +73,14 @@ func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 
 	json.NewDecoder(resp.Body).Decode(&fastTasks)
 
-	output := "Все существующие дела:\n"
+	var output string
+
+	if len(fastTasks) == 0 {
+		output = "Дел не нашлось."
+		return []models.FastTask{}, output, nil
+	}
+
+	output = "Все существующие дела:\n"
 	for i := range fastTasks {
 		output += emojiFastTask + fmt.Sprintf("%v) %s \n", i+1, fastTasks[i].TaskName)
 	}

@@ -11,6 +11,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"todo_web_service/src/telegram_bot/client"
 
 	"todo_web_service/src/models"
 	"todo_web_service/src/telegram_bot/fast_task"
@@ -146,15 +147,9 @@ func main() {
 
 				// .../{id}/fast_task/{ft_id}
 				fastTaskDeleteUrl := DefaultServiceUrl + fmt.Sprintf("%v/fast_task/%v", userId, fastTasks[ftNumber-1].Id)
-				log.Println("FAST TASK URL: ", fastTaskDeleteUrl)
-				req, err := http.NewRequest("DELETE", fastTaskDeleteUrl, nil)
 
-				client := http.Client{}
+				_, err = client.Delete(fastTaskDeleteUrl)
 
-				// 'Do' returns response. You may use it if you need
-				_, err = client.Do(req)
-
-				//_, err = http.Post(http.MethodDelete, fastTaskDeleteUrl, nil)
 				if err != nil {
 					log.Fatal(err)
 				}

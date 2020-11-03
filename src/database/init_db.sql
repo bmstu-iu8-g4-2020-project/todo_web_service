@@ -12,5 +12,5 @@ CREATE TABLE if not exists fast_task (
     chat_id bigint,
     task_name varchar(255),
     notify_interval bigint,
-    deadline timestamp
+    deadline timestamptz
 );
