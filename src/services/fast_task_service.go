@@ -86,7 +86,16 @@ func (db *DataBase) UpdateFastTasks(fastTasks []models.FastTask) error {
 	return nil
 }
 
-// func (db *DataBase) DeleteFastTask(fastTask models.FastTask) error
+func (db *DataBase) DeleteFastTask(ftId int) error {
+	result, err := db.Exec("DELETE FROM fast_task WHERE id = $1", ftId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(result.RowsAffected())
+
+	return nil
+}
 
 func MillisecondInterval(interval time.Duration) int64 {
 	return interval.Milliseconds()

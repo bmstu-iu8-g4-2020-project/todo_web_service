@@ -65,4 +65,17 @@ func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {}
+func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {
+	ftId, err := strconv.Atoi(mux.Vars(r)["ft_id"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = env.Db.DeleteFastTask(ftId)
+
+	if err != nil {
+		w.WriteHeader(http.StatusNotModified)
+		return
+	}
+}

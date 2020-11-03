@@ -20,50 +20,7 @@ const (
 	DefaultServiceUrl  = "http://localhost:8080/"
 	SuburbanServiceUrl = DefaultServiceUrl + "suburban"
 	UserServiceUrl     = DefaultServiceUrl + "user"
-	FastTaskPostfix    = "fast_task/"
 )
-
-const (
-	emojiAttention = "📢: "
-	emojiFastTask  = "⭕ "
-)
-
-func CheckFastTasks(bot **tgbotapi.BotAPI) {
-	for {
-		var allFastTasks []models.FastTask
-		resp, err := http.Get(DefaultServiceUrl + FastTaskPostfix)
-		if err != nil {
-			log.Fatal(err)
-		}
-		json.NewDecoder(resp.Body).Decode(&allFastTasks)
-
-		var batch []models.FastTask // Создаём батч для обновления нескольких дедлайнов.
-		for i := range allFastTasks {
-			currFastTask := allFastTasks[i]
-			// Если дедлайн "просрочен", отправляем напоминание пользователю
-			// и обновляем время следующего дедлайна.
-			if time.Now().After(currFastTask.Deadline) {
-				// Отсылаем напоминание пользователю.
-				(*bot).Send(tgbotapi.NewMessage(currFastTask.ChatId, emojiAttention+currFastTask.TaskName))
-				// Добавляем задачу в батч.
-				batch = append(batch, currFastTask)
-			}
-		}
-		if len(batch) != 0 {
-			bytesRepr, err := json.Marshal(batch)
-			if err != nil {
-				log.Fatal(err)
-			}
-			url := DefaultServiceUrl + FastTaskPostfix + "update"
-			_, err = http.Post(http.MethodPut, url, bytes.NewBuffer(bytesRepr))
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
-		time.Sleep(time.Second * 10)
-	}
-}
 
 func main() {
 	botToken := os.Getenv("BOT_TOKEN")
@@ -87,7 +44,8 @@ func main() {
 	userConfig.Timeout = 60
 	newUpdate, _ := bot.GetUpdatesChan(userConfig)
 
-	go CheckFastTasks(&bot)
+	// В отдельном потоке проверяем fast_task'и.
+	go fast_task.CheckFastTasks(&bot)
 
 	// читаем обновления из канала
 	for {
@@ -129,7 +87,7 @@ func main() {
 
 				json.NewDecoder(resp.Body).Decode(&user)
 
-				reply = fmt.Sprintf("Hello %s. This is your id: %s", user.UserName, strconv.Itoa(user.Id))
+				reply = fmt.Sprintf("Hello %s. This is your 🆔: %s", user.UserName, strconv.Itoa(user.Id))
 			case "/suburban":
 				resp, err := http.Get(SuburbanServiceUrl)
 				if err != nil {
@@ -152,23 +110,8 @@ func main() {
 					continue
 				}
 
-				fastTask := models.FastTask{
-					AssigneeId:     userId,
-					TaskName:       taskName,
-					ChatId:         chatID,
-					NotifyInterval: interval,
-					Deadline:       time.Now().Add(interval),
-				}
+				err = fast_task.AddFastTask(userId, taskName, chatID, interval)
 
-				bytesRepr, err := json.Marshal(fastTask)
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				// DefaultServiceUrl/{id}/fast_task
-				fastTaskUrl := DefaultServiceUrl + fmt.Sprintf("%s", strconv.Itoa(userId)) + "/fast_task/"
-
-				_, err = http.Post(fastTaskUrl, "application/json", bytes.NewBuffer(bytesRepr))
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -201,9 +144,18 @@ func main() {
 					continue
 				}
 
-				// fastTaskDeleteUrl := DefaultServiceUrl + fmt.Sprintf("%v/fast_task/%v", userId,  fastTasks[ftNumber - 1].Id)
-				//http.NewRequest(http.MethodDelete, fastTaskDeleteUrl, bytes.NewBuffer()) TODO: DELETE
+				fastTaskDeleteUrl := DefaultServiceUrl + fmt.Sprintf("%v/fast_task/%v", userId, fastTasks[ftNumber-1].Id)
+				_, err = http.NewRequest(http.MethodDelete, fastTaskDeleteUrl, nil)
+				if err != nil {
+					log.Fatal(err)
+				}
 
+				_, output, err = fast_task.OutputFastTasks(userId)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				bot.Send(tgbotapi.NewMessage(chatID, fmt.Sprintf("Задача %v успешно удалена\n", ftNumber)+output))
 			default:
 				reply = update.Message.Text
 			}
