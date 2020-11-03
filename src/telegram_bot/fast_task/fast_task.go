@@ -34,11 +34,9 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 
 		var batch []models.FastTask // Создаём батч для обновления нескольких дедлайнов.
 		for _, currTask := range allFastTasks {
-			now := time.Now()
-			deadline := currTask.Deadline
 			// Если дедлайн "просрочен", отправляем напоминание пользователю
 			// и обновляем время следующего дедлайна.
-			if now.After(deadline) {
+			if time.Now().After(currTask.Deadline) {
 				// Отсылаем напоминание пользователю.
 				(*bot).Send(tgbotapi.NewMessage(currTask.ChatId, emojiAttention+currTask.TaskName))
 				// Добавляем задачу в батч.
@@ -50,7 +48,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			url := DefaultServiceUrl + FastTaskPostfix + "update"
+			url := DefaultServiceUrl + FastTaskPostfix
 
 			_, err = client.Put(url, bytes.NewBuffer(bytesRepr))
 
@@ -59,7 +57,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			}
 		}
 
-		time.Sleep(time.Second * 1)
+		time.Sleep(time.Second * 10)
 	}
 }
 

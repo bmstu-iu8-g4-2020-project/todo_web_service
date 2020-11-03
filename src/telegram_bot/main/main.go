@@ -59,7 +59,7 @@ func main() {
 
 			switch update.Message.Text {
 			case "/start":
-				reply = fmt.Sprintf("Hello %s!\n Welcome =)", userName)
+				reply = fmt.Sprintf("Привет, %s!\n Добро пожаловать!", userName)
 				user := models.User{
 					Id:       userId,
 					UserName: userName,
@@ -88,7 +88,7 @@ func main() {
 
 				json.NewDecoder(resp.Body).Decode(&user)
 
-				reply = fmt.Sprintf("Hello %s. This is your 🆔: %s", user.UserName, strconv.Itoa(user.Id))
+				reply = fmt.Sprintf("Здравствуйте, %s. Это Ваш 🆔: %s", user.UserName, strconv.Itoa(user.Id))
 			case "/suburban":
 				resp, err := http.Get(SuburbanServiceUrl)
 				if err != nil {
@@ -103,11 +103,13 @@ func main() {
 				ftUpdate := <-newUpdate
 				taskName := ftUpdate.Message.Text
 
-				bot.Send(tgbotapi.NewMessage(chatID, "Введите, с какой периодичностью вам будут приходить сообщения. (Например: 1h10m40s)"))
+				bot.Send(tgbotapi.NewMessage(chatID,
+					"Введите, с какой периодичностью вам будут приходить сообщения. (Например: 1h10m40s)"))
 				ftUpdate = <-newUpdate
 				interval, err := time.ParseDuration(ftUpdate.Message.Text)
 				if err != nil {
-					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
+					bot.Send(tgbotapi.NewMessage(chatID,
+						"Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
 					continue
 				}
 
@@ -125,7 +127,8 @@ func main() {
 					log.Fatal(err)
 				}
 			case "/delete_fast_task":
-				bot.Send(tgbotapi.NewMessage(chatID, "Какая из этих задач уже выполнена? (введите её порядковый номер)"))
+				bot.Send(tgbotapi.NewMessage(chatID,
+					"Какая из этих задач уже выполнена? (введите её порядковый номер)"))
 				fastTasks, output, err := fast_task.OutputFastTasks(userId)
 				if err != nil {
 					log.Fatal(err)
@@ -140,13 +143,15 @@ func main() {
 					continue
 				}
 
-				if ftNumber < len(fastTasks)-1 && ftNumber > 0 {
-					bot.Send(tgbotapi.NewMessage(chatID, "Кажется, такого дела не существует. Введите команду ещё раз."))
+				if ftNumber <= 0 || ftNumber > len(fastTasks) {
+					bot.Send(tgbotapi.NewMessage(chatID,
+						"Кажется, такого дела не существует. Введите команду ещё раз."))
 					continue
 				}
 
 				// .../{id}/fast_task/{ft_id}
-				fastTaskDeleteUrl := DefaultServiceUrl + fmt.Sprintf("%v/fast_task/%v", userId, fastTasks[ftNumber-1].Id)
+				fastTaskDeleteUrl := DefaultServiceUrl +
+					fmt.Sprintf("%v/fast_task/%v", userId, fastTasks[ftNumber-1].Id)
 
 				_, err = client.Delete(fastTaskDeleteUrl)
 
@@ -161,7 +166,7 @@ func main() {
 
 				bot.Send(tgbotapi.NewMessage(chatID, fmt.Sprintf("Задача %v успешно удалена\n", ftNumber)+output))
 			default:
-				reply = update.Message.Text
+				reply = "Эхо: " + update.Message.Text
 			}
 
 			log.Printf("[%s] - %s", userName, reply)

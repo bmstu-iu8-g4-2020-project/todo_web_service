@@ -35,7 +35,7 @@ func main() {
 	r.HandleFunc("/{id}/fast_task/", env.AddFastTask).Methods(http.MethodPost)
 	r.HandleFunc("/fast_task/", env.GetAllFastTasks).Methods(http.MethodGet)
 	r.HandleFunc("/{id}/fast_task/", env.GetFastTasks).Methods(http.MethodGet)
-	r.HandleFunc("/fast_task/update", env.UpdateFastTasks).Methods(http.MethodPut)
+	r.HandleFunc("/fast_task/", env.UpdateFastTasks).Methods(http.MethodPut)
 	r.HandleFunc("/{id}/fast_task/{ft_id}", env.DeleteFastTask).Methods(http.MethodDelete)
 
 	err = http.ListenAndServe(":8080", r)
