@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"todo_web_service/src/models"
 )
 
@@ -24,7 +25,8 @@ type Datastore interface {
 }
 
 func NewDB(dbUser string, dbPassword string) (*DataBase, error) {
-	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=todownik sslmode=disable", dbUser, dbPassword)
+	log.Println(dbUser, dbPassword)
+	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=todoapp2 sslmode=disable", dbUser, dbPassword)
 
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {

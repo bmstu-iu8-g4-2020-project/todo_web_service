@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"strconv"
 	"todo_web_service/src/models"
@@ -73,6 +74,8 @@ func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
+
+	log.Println("Fast task id: ", ftId)
 
 	err = env.Db.DeleteFastTask(ftId)
 
