@@ -3,7 +3,9 @@ drop table if exists fast_task cascade;
 
 CREATE TABLE if not exists tg_user (
     user_id  integer unique,
-    username varchar(255)
+    username varchar(255),
+    first_name varchar(255),
+    second_name varchar(255)
 );
 
 CREATE TABLE if not exists fast_task (

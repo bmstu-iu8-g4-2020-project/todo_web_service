@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/Syfaro/telegram-bot-api"
 	"io/ioutil"
@@ -12,15 +10,14 @@ import (
 	"strconv"
 	"time"
 	"todo_web_service/src/telegram_bot/client"
+	"todo_web_service/src/telegram_bot/user"
 
-	"todo_web_service/src/models"
 	"todo_web_service/src/telegram_bot/fast_task"
 )
 
 const (
 	DefaultServiceUrl  = "http://localhost:8080/"
 	SuburbanServiceUrl = DefaultServiceUrl + "suburban"
-	UserServiceUrl     = DefaultServiceUrl + "user"
 )
 
 func main() {
@@ -59,36 +56,16 @@ func main() {
 
 			switch update.Message.Text {
 			case "/start":
-				reply = fmt.Sprintf("Привет, %s!\n Добро пожаловать!", userName)
-				user := models.User{
-					Id:       userId,
-					UserName: userName,
-				}
-
-				bytesRepr, err := json.Marshal(user)
+				reply, err = user.InitUser(userId, userName,
+					update.Message.From.FirstName, update.Message.From.LastName)
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				_, err = http.Post(UserServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				reply += fmt.Sprintf("\nВы авторизованы!")
 			case "/userinfo":
-				user := models.User{}
-
-				userInfoUrl := UserServiceUrl + fmt.Sprintf("/%s", strconv.Itoa(userId))
-
-				resp, err := http.Get(userInfoUrl)
+				reply, err = user.GetUserInfo(userId)
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				json.NewDecoder(resp.Body).Decode(&user)
-
-				reply = fmt.Sprintf("Здравствуйте, %s. Это Ваш 🆔: %s", user.UserName, strconv.Itoa(user.Id))
 			case "/suburban":
 				resp, err := http.Get(SuburbanServiceUrl)
 				if err != nil {
@@ -149,7 +126,6 @@ func main() {
 					continue
 				}
 
-				// .../{id}/fast_task/{ft_id}
 				fastTaskDeleteUrl := DefaultServiceUrl +
 					fmt.Sprintf("%v/fast_task/%v", userId, fastTasks[ftNumber-1].Id)
 
