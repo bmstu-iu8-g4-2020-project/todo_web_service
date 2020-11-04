@@ -21,7 +21,7 @@ CREATE TABLE if not exists fast_task (
 CREATE TABLE if not exists schedule (
     id serial primary key,
     assignee_id integer references tg_user(user_id),
-    task_name varchar(10)
+    week_day varchar(10)
 );
 
 CREATE TABLE if not exists schedule_task (
@@ -30,6 +30,6 @@ CREATE TABLE if not exists schedule_task (
     title varchar(255),
     place varchar(50),
     speaker varchar(50),
-    start_time timestamp,
-    start_end timestamp
+    start_time time,
+    start_end time
 );
