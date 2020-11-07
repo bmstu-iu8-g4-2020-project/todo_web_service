@@ -21,6 +21,10 @@ type Datastore interface {
 	GetFastTasks(assigneeId int) ([]models.FastTask, error)
 	UpdateFastTasks(fastTasks []models.FastTask) error
 	DeleteFastTask(ftId int) error
+
+	// Schedule
+	InitSchedule(assigneeId int) ([]models.Schedule, error)
+	FillSchedule(scheduleTasks []models.ScheduleTask) error
 }
 
 func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {

@@ -14,7 +14,7 @@ type Environment struct {
 	Db services.Datastore
 }
 
-func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) AddUserHandler(w http.ResponseWriter, r *http.Request) {
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
@@ -29,7 +29,7 @@ func (env *Environment) AddUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (env *Environment) GetUserInfo(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)

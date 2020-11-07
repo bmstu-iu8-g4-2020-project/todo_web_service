@@ -8,7 +8,7 @@ import (
 	"todo_web_service/src/models"
 )
 
-func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) AddFastTaskHandler(w http.ResponseWriter, r *http.Request) {
 	fastTask := models.FastTask{}
 	err := json.NewDecoder(r.Body).Decode(&fastTask)
 	if err != nil {
@@ -23,7 +23,7 @@ func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetAllFastTasksHandler(w http.ResponseWriter, r *http.Request) {
 	fastTasks, err := env.Db.GetAllFastTasks()
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -33,7 +33,7 @@ func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) 
 	json.NewEncoder(w).Encode(fastTasks)
 }
 
-func (env *Environment) GetFastTasks(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Request) {
 	paramFromURL := mux.Vars(r)
 	assigneeId, err := strconv.Atoi(paramFromURL["id"])
 	if err != nil {
@@ -50,7 +50,7 @@ func (env *Environment) GetFastTasks(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(fastTasks)
 }
 
-func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) UpdateFastTasksHandler(w http.ResponseWriter, r *http.Request) {
 	var fastTasks []models.FastTask
 	err := json.NewDecoder(r.Body).Decode(&fastTasks)
 	if err != nil {
@@ -66,7 +66,7 @@ func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) DeleteFastTaskHandler(w http.ResponseWriter, r *http.Request) {
 	paramFromURL := mux.Vars(r)
 	ftId, err := strconv.Atoi(paramFromURL["ft_id"])
 	if err != nil {

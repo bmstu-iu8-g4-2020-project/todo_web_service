@@ -80,7 +80,8 @@ func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 
 	output = "Все существующие дела:\n"
 	for i := range fastTasks {
-		output += emojiFastTask + fmt.Sprintf("%v) %s \n", i+1, fastTasks[i].TaskName)
+		output += emojiFastTask + fmt.Sprintf("%v) %s (интервал: %s)\n",
+			i+1, fastTasks[i].TaskName, fastTasks[i].NotifyInterval.String())
 	}
 
 	return fastTasks, output, nil

@@ -2,17 +2,21 @@ package main
 
 import (
 	"fmt"
-	"github.com/Syfaro/telegram-bot-api"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
+	"todo_web_service/src/models"
+	"todo_web_service/src/services"
+	"todo_web_service/src/telegram_bot/schedule"
+
 	"todo_web_service/src/telegram_bot/client"
+	"todo_web_service/src/telegram_bot/fast_task"
 	"todo_web_service/src/telegram_bot/user"
 
-	"todo_web_service/src/telegram_bot/fast_task"
+	"github.com/Syfaro/telegram-bot-api"
 )
 
 const (
@@ -142,11 +146,28 @@ func main() {
 			}
 
 			bot.Send(tgbotapi.NewMessage(chatID, fmt.Sprintf("Задача %v успешно удалена\n", ftNumber)+output))
-		case "init_schedule":
+		case "fill_schedule":
 			bot.Send(tgbotapi.NewMessage(chatID, "Итак, давайте пробежимся по дням недели "+
 				"и заполним расписание на каждый из них."))
-			// TODO: schedule
+			// Заполнение всех полей расписания в базе данных расписания.
+			assigneeSchedule, err := schedule.InitScheduleTable(userId) // в основном нам нужны отсюда sch_id для заполнения бд.
+			if err != nil {
+				log.Fatal(err)
+			}
+			// TODO: Тут должно происходить заполнение полного расписания на неделю.
+			var scheduleTasks []models.ScheduleTask // sch_id -> Массив заданий на день.
+			for _, weekdaySch := range assigneeSchedule {
+				bot.Send(tgbotapi.NewMessage(chatID, fmt.Sprintf("Заполним расписание на %s\n Введите число дел на этот день.",
+					services.ParseWeekdayToStr(weekdaySch.WeekDay))))
+				// <...>
+			}
 
+			err = schedule.FillSchedule(userId, scheduleTasks)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			bot.Send(tgbotapi.NewMessage(chatID, "Здорово! Ваше расписание успешно заполнено! "))
 		default:
 			reply = "Введите какую-нибудь команду."
 		}
@@ -155,5 +176,4 @@ func main() {
 		msg := tgbotapi.NewMessage(chatID, reply)
 		bot.Send(msg)
 	}
-
 }

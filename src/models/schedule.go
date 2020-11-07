@@ -14,6 +14,6 @@ type ScheduleTask struct {
 	Title      string    `json:"title"`
 	Place      string    `json:"place"`
 	Speaker    string    `json:"speaker"`
-	Begin      time.Time `json:"begin"`
+	Start      time.Time `json:"begin"`
 	End        time.Time `json:"end"`
 }

@@ -29,16 +29,17 @@ func main() {
 
 	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods(http.MethodGet)
 	// User.
-	r.HandleFunc("/user", env.AddUser).Methods(http.MethodPost)
-	r.HandleFunc("/user/{id}", env.GetUserInfo).Methods(http.MethodGet)
+	r.HandleFunc("/user", env.AddUserHandler).Methods(http.MethodPost)
+	r.HandleFunc("/user/{id}", env.GetUserInfoHandler).Methods(http.MethodGet)
 	// Fast Task.
-	r.HandleFunc("/{id}/fast_task/", env.AddFastTask).Methods(http.MethodPost)
-	r.HandleFunc("/fast_task/", env.GetAllFastTasks).Methods(http.MethodGet)
-	r.HandleFunc("/{id}/fast_task/", env.GetFastTasks).Methods(http.MethodGet)
-	r.HandleFunc("/fast_task/", env.UpdateFastTasks).Methods(http.MethodPut)
-	r.HandleFunc("/{id}/fast_task/{ft_id}", env.DeleteFastTask).Methods(http.MethodDelete)
+	r.HandleFunc("/{id}/fast_task/", env.AddFastTaskHandler).Methods(http.MethodPost)
+	r.HandleFunc("/fast_task/", env.GetAllFastTasksHandler).Methods(http.MethodGet)
+	r.HandleFunc("/{id}/fast_task/", env.GetFastTasksHandler).Methods(http.MethodGet)
+	r.HandleFunc("/fast_task/", env.UpdateFastTasksHandler).Methods(http.MethodPut)
+	r.HandleFunc("/{id}/fast_task/{ft_id}", env.DeleteFastTaskHandler).Methods(http.MethodDelete)
 	// Schedule.
-	// r.HandleFunc("/schedule/", env.InitSchedule).Methods(http.MethodPost)
+	r.HandleFunc("/{id}/schedule/init", env.InitScheduleHandler).Methods(http.MethodPost)
+	r.HandleFunc("/{id}/schedule/fill", env.FillScheduleHandler).Methods(http.MethodPost)
 
 	err = http.ListenAndServe(":8080", r)
 

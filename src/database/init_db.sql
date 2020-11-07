@@ -31,5 +31,5 @@ CREATE TABLE if not exists schedule_task (
     place varchar(50),
     speaker varchar(50),
     start_time time,
-    start_end time
+    end_time time
 );

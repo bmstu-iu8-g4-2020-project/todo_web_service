@@ -42,7 +42,7 @@ func InitUser(userId int, userName string, firstName string, secondName string) 
 func GetUserInfo(userId int) (string, error) {
 	user := models.User{}
 
-	userInfoUrl := UserServiceUrl + fmt.Sprintf("/%s", strconv.Itoa(userId))
+	userInfoUrl := UserServiceUrl + fmt.Sprintf("/%v", userId)
 
 	resp, err := http.Get(userInfoUrl)
 	if err != nil {
