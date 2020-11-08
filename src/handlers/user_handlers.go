@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -16,18 +15,15 @@ type Environment struct {
 }
 
 func (env *Environment) AddUserHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("Вошли!")
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		log.Println("Не распаковалось!")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	err = env.Db.AddUser(user)
 	if err != nil {
-		log.Println("Не Добавилось!")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}

@@ -29,7 +29,7 @@ func (db *DataBase) GetUsers() ([]models.User, error) {
 	for rows.Next() {
 		user := models.User{}
 
-		err = rows.Scan(&user.Id, &user.UserName, &user.StateCode, &user.StateCode, &user.StateRequest)
+		err = rows.Scan(&user.Id, &user.UserName, &user.StateCode, &user.StateRequest)
 		if err != nil {
 			return nil, err
 		}

@@ -62,7 +62,10 @@ func GetStates(userStates *map[int]State) error {
 	}
 
 	var users []models.User
-	json.NewDecoder(resp.Body).Decode(&users)
+	err = json.NewDecoder(resp.Body).Decode(&users)
+	if err != nil {
+		return err
+	}
 
 	for _, user := range users {
 		(*userStates)[user.Id] = State{user.StateCode, user.StateRequest}
