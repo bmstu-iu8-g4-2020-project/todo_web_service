@@ -5,54 +5,110 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"todo_web_service/src/models"
+	"todo_web_service/src/telegram_bot/utils"
 )
 
 const (
 	DefaultServiceUrl = "http://localhost:8080/"
-	UserServiceUrl    = DefaultServiceUrl + "user"
 )
 
-func InitUser(userId int, userName string, firstName string, secondName string) (string, error) {
-	reply := fmt.Sprintf("Здравствуйте, %s %s!\n", firstName, secondName)
+type State struct {
+	Code    int    `json:"code"`
+	Request string `json:"request"`
+}
 
+func InitUser(userId int, userName string) error {
 	user := models.User{
-		Id:         userId,
-		UserName:   userName,
-		FirstName:  firstName,
-		SecondName: secondName,
+		Id:           userId,
+		UserName:     userName,
+		StateCode:    START,
+		StateRequest: "{}",
 	}
 
 	bytesRepr, err := json.Marshal(user)
 	if err != nil {
-		return "", err
+		return err
 	}
-
-	_, err = http.Post(UserServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
+	url := DefaultServiceUrl + "user/"
+	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	reply += "Добро пожаловать!"
-
-	return reply, nil
+	return nil
 }
 
-func GetUserInfo(userId int) (string, error) {
+func GetUser(userId int) (models.User, error) {
 	user := models.User{}
 
-	userInfoUrl := UserServiceUrl + fmt.Sprintf("/%v", userId)
+	url := DefaultServiceUrl + fmt.Sprintf("user/%v", userId)
 
-	resp, err := http.Get(userInfoUrl)
+	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return models.User{}, err
 	}
 
 	json.NewDecoder(resp.Body).Decode(&user)
 
-	reply := fmt.Sprintf("Здравствуйте, %s %s. \nВаш 🆔: %s",
-		user.FirstName, user.SecondName, strconv.Itoa(user.Id))
+	return user, nil
+}
 
-	return reply, nil
+func GetStates(userStates *map[int]State) error {
+	url := DefaultServiceUrl + "user/"
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+
+	var users []models.User
+	json.NewDecoder(resp.Body).Decode(&users)
+
+	for _, user := range users {
+		(*userStates)[user.Id] = State{user.StateCode, user.StateRequest}
+	}
+
+	return nil
+}
+
+func UpdateUser(userId int, username string, stateCode int, stateRequest string) error {
+	user := models.User{
+		Id:           userId,
+		UserName:     username,
+		StateCode:    stateCode,
+		StateRequest: stateRequest,
+	}
+	url := DefaultServiceUrl + "user/{id}"
+
+	bytesRepr, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	_, err = utils.Put(url, bytes.NewBuffer(bytesRepr))
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func SetState(userId int, userName string, userStates *map[int]State, state State) error {
+	err := UpdateUser(userId, userName, state.Code, state.Request)
+	if err != nil {
+		return err
+	}
+	(*userStates)[userId] = State{Code: state.Code, Request: state.Request}
+
+	return nil
+}
+
+func ResetState(userId int, userName string, userStates *map[int]State) error {
+	err := UpdateUser(userId, userName, START, "{}")
+	if err != nil {
+		return err
+	}
+	(*userStates)[userId] = State{Code: START, Request: "{}"}
+
+	return nil
 }

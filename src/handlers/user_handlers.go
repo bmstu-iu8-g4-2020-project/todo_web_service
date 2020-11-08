@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -15,32 +16,59 @@ type Environment struct {
 }
 
 func (env *Environment) AddUserHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Вошли!")
 	user := models.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
+		log.Println("Не распаковалось!")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
 	err = env.Db.AddUser(user)
 	if err != nil {
+		log.Println("Не Добавилось!")
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 }
 
-func (env *Environment) GetUserInfoHandler(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	userId, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	user, err := env.Db.UserInfo(userId)
+	user, err := env.Db.GetUser(userId)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
 	json.NewEncoder(w).Encode(user)
+}
+
+func (env *Environment) UpdateUserStateHandler(w http.ResponseWriter, r *http.Request) {
+	user := models.User{}
+	err := json.NewDecoder(r.Body).Decode(&user)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	err = env.Db.UpdateState(user)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+}
+
+func (env *Environment) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
+	users, err := env.Db.GetUsers()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	json.NewEncoder(w).Encode(users)
 }

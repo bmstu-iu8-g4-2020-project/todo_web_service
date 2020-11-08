@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 	"todo_web_service/src/models"
-	"todo_web_service/src/telegram_bot/client"
+	"todo_web_service/src/telegram_bot/utils"
 
 	"github.com/Syfaro/telegram-bot-api"
 )
@@ -50,7 +50,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			}
 			url := DefaultServiceUrl + FastTaskPostfix
 
-			_, err = client.Put(url, bytes.NewBuffer(bytesRepr))
+			_, err = utils.Put(url, bytes.NewBuffer(bytesRepr))
 
 			if err != nil {
 				log.Fatal(err)
@@ -74,7 +74,7 @@ func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 	var output string
 
 	if len(fastTasks) == 0 {
-		output = "Дел не нашлось."
+		output = "Дел не нашлось. Добавьте их с помощью /add_fast_task"
 		return []models.FastTask{}, output, nil
 	}
 

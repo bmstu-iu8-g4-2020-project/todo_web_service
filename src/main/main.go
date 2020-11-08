@@ -29,8 +29,10 @@ func main() {
 
 	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods(http.MethodGet)
 	// User.
-	r.HandleFunc("/user", env.AddUserHandler).Methods(http.MethodPost)
-	r.HandleFunc("/user/{id}", env.GetUserInfoHandler).Methods(http.MethodGet)
+	r.HandleFunc("/user/", env.AddUserHandler).Methods(http.MethodPost)
+	r.HandleFunc("/user/", env.GetUsersHandler).Methods(http.MethodGet)
+	r.HandleFunc("/user/{id}", env.GetUserHandler).Methods(http.MethodGet)
+	r.HandleFunc("/user/{id}", env.UpdateUserStateHandler).Methods(http.MethodPut)
 	// Fast Task.
 	r.HandleFunc("/{id}/fast_task/", env.AddFastTaskHandler).Methods(http.MethodPost)
 	r.HandleFunc("/fast_task/", env.GetAllFastTasksHandler).Methods(http.MethodGet)

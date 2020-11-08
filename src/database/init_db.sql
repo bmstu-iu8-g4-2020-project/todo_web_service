@@ -5,9 +5,11 @@ drop table if exists schedule cascade;
 CREATE TABLE if not exists tg_user (
     user_id  integer unique,
     username varchar(255),
-    first_name varchar(255),
-    second_name varchar(255)
+    state_code integer,
+    state_request text
 );
+
+CREATE index on tg_user(user_id);
 
 CREATE TABLE if not exists fast_task (
     id serial primary key,

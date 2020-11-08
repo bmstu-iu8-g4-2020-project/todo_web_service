@@ -13,7 +13,9 @@ type DataBase struct {
 type Datastore interface {
 	// User
 	AddUser(user models.User) error
-	UserInfo(userId int) (models.User, error)
+	GetUsers() ([]models.User, error)
+	GetUser(userId int) (models.User, error)
+	UpdateState(user models.User) error
 
 	// FastTask
 	AddFastTask(fastTask models.FastTask) error
