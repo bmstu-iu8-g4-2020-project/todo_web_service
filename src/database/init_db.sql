@@ -1,6 +1,7 @@
 drop table if exists tg_user cascade;
 drop table if exists fast_task cascade;
 drop table if exists schedule cascade;
+drop table if exists schedule_task cascade;
 
 CREATE TABLE if not exists tg_user (
     user_id  integer unique,
@@ -23,12 +24,7 @@ CREATE TABLE if not exists fast_task (
 CREATE TABLE if not exists schedule (
     id serial primary key,
     assignee_id integer references tg_user(user_id),
-    week_day varchar(10)
-);
-
-CREATE TABLE if not exists schedule_task (
-    id serial primary key,
-    schedule_id integer references schedule(id),
+    week_day varchar(10),
     title varchar(255),
     place varchar(50),
     speaker varchar(50),

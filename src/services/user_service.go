@@ -8,7 +8,7 @@ import (
 )
 
 func (db *DataBase) AddUser(user models.User) error {
-	result, err := db.Exec("INSERT INTO tg_user (user_id, username, state_code, state_request) values ($1, $2, $3, $4)",
+	result, err := db.Exec("INSERT INTO tg_user (user_id, username, state_code, state_request) values ($1, $2, $3, $4);",
 		user.Id, user.UserName, user.StateCode, user.StateRequest)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (db *DataBase) GetUsers() ([]models.User, error) {
 
 func (db *DataBase) GetUser(userId int) (models.User, error) {
 	user := models.User{}
-	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1", userId)
+	row := db.QueryRow("SELECT * FROM tg_user WHERE user_id= $1;", userId)
 	err := row.Scan(&user.Id, &user.UserName, &user.StateCode, &user.StateRequest)
 	if err != nil {
 		return models.User{}, err

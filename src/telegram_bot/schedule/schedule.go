@@ -6,35 +6,31 @@ import (
 	"fmt"
 	"net/http"
 	"todo_web_service/src/models"
+	"todo_web_service/src/services"
+	"todo_web_service/src/telegram_bot/user"
 )
 
 const (
 	DefaultServiceUrl = "http://localhost:8080/"
 )
 
-func InitScheduleTable(assigneeId int) ([]models.Schedule, error) {
-	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/init", assigneeId)
-
-	resp, err := http.Post(url, "application/json", nil)
-
-	if err != nil {
-		return []models.Schedule{}, err
-	}
-
-	var assigneeSchedule []models.Schedule
-
-	json.NewDecoder(resp.Body).Decode(&assigneeSchedule)
-
-	return assigneeSchedule, nil
-}
-
-func FillSchedule(assigneeId int, scheduleTasks []models.ScheduleTask) error {
-	bytesRepr, err := json.Marshal(scheduleTasks)
+func AddToWeekday(userId int, userName string, userStates *map[int]user.State, stateCode int) error {
+	weekday := services.StateCodeToWeekDay(stateCode)
+	b, err := json.Marshal(models.ScheduleTask{AssigneeId: userId, WeekDay: weekday})
 	if err != nil {
 		return err
 	}
 
-	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/fill", assigneeId)
+	user.SetState(userId, userName, userStates, user.State{Code: user.SCHEDULE_ENTER_TITLE, Request: string(b)})
+	return nil
+}
+
+func AddScheduleTask(scheduleTask models.ScheduleTask) error {
+	bytesRepr, err := json.Marshal(scheduleTask)
+	if err != nil {
+		return err
+	}
+	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/", scheduleTask.AssigneeId)
 
 	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
 	if err != nil {

@@ -101,6 +101,7 @@ func SetState(userId int, userName string, userStates *map[int]State, state Stat
 	if err != nil {
 		return err
 	}
+
 	(*userStates)[userId] = State{Code: state.Code, Request: state.Request}
 
 	return nil

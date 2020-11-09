@@ -40,8 +40,7 @@ func main() {
 	r.HandleFunc("/fast_task/", env.UpdateFastTasksHandler).Methods(http.MethodPut)
 	r.HandleFunc("/{id}/fast_task/{ft_id}", env.DeleteFastTaskHandler).Methods(http.MethodDelete)
 	// Schedule.
-	r.HandleFunc("/{id}/schedule/init", env.InitScheduleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/{id}/schedule/fill", env.FillScheduleHandler).Methods(http.MethodPost)
+	r.HandleFunc("/{id}/schedule/", env.AddScheduleTaskHandler).Methods(http.MethodPost)
 
 	err = http.ListenAndServe(":8080", r)
 
