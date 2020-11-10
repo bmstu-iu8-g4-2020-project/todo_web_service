@@ -134,8 +134,7 @@ func main() {
 					log.Fatal(err)
 				}
 				bot.Send(tgbotapi.NewMessage(chatId, output))
-				state := user.State{Code: user.FAST_TASK_DELETE, Request: "{}"}
-				user.SetState(userId, userName, &userStates, state)
+				user.SetState(userId, userName, &userStates, user.State{Code: user.FAST_TASK_DELETE, Request: "{}"})
 			} else {
 				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
 			}
@@ -145,6 +144,24 @@ func main() {
 			bot.Send(tgbotapi.NewMessage(chatId, "Выберете день недели, куда вы хотели юы добавить дело:\n"+
 				"Понедельник /add_to_mon \nВторник /add_to_tue \nСреда /add_to_wed "+
 				"\nЧетверг /add_to_thu \nПятница /add_to_fri \nСуббота /add_to_sat \nВоскресенье /add_to_sun"))
+		case "today_schedule":
+			output, err := schedule.GetSchedule(userId, time.Now().Weekday())
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			bot.Send(tgbotapi.NewMessage(chatId, output))
+		case "tomorrow_schedule":
+			output, err := schedule.GetSchedule(userId, time.Now().Weekday()+1)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			bot.Send(tgbotapi.NewMessage(chatId, output))
+		case "weekday_schedule":
+			bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
+			user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_WEEKDAY, Request: "{}"})
+			continue
 		case "add_to_mon":
 			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_MON)
 			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
@@ -356,6 +373,21 @@ func main() {
 
 				bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("Супер! %s пополнился новой задачей.",
 					services.WeekdayToStr(scheduleTask.WeekDay))))
+
+				user.ResetState(userId, userName, &userStates)
+			} else if userStates[userId].Code == user.SCHEDULE_ENTER_WEEKDAY {
+				weekday, err := services.StrToWeekday(msg.Text)
+				if err != nil {
+					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник"))
+					continue
+				}
+
+				output, err := schedule.GetSchedule(userId, weekday)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				bot.Send(tgbotapi.NewMessage(chatId, output))
 
 				user.ResetState(userId, userName, &userStates)
 			}

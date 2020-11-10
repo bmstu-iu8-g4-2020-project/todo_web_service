@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"time"
 	"todo_web_service/src/models"
 )
 
@@ -26,6 +27,7 @@ type Datastore interface {
 
 	// ScheduleTask
 	AddScheduleTask(scheduleTask models.ScheduleTask) error
+	GetSchedule(assigneeId int, weekday time.Weekday) ([]models.ScheduleTask, error)
 }
 
 func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
