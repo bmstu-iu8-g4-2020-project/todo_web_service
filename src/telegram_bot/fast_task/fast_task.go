@@ -17,8 +17,8 @@ import (
 const (
 	DefaultServiceUrl = "http://localhost:8080/"
 
-	emojiAttention = "📢: "
-	emojiFastTask  = "📌 "
+	emojiAttention = "📢"
+	emojiFastTask  = "📌"
 
 	FastTaskPostfix = "fast_task/"
 )
@@ -38,7 +38,8 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			// и обновляем время следующего дедлайна.
 			if time.Now().After(currTask.Deadline) {
 				// Отсылаем напоминание пользователю.
-				(*bot).Send(tgbotapi.NewMessage(currTask.ChatId, emojiAttention+currTask.TaskName))
+				(*bot).Send(tgbotapi.NewMessage(currTask.ChatId,
+					fmt.Sprintf("%s Напоминание: \n%s", emojiAttention, currTask.TaskName)))
 				// Добавляем задачу в батч.
 				batch = append(batch, currTask)
 			}
@@ -80,8 +81,8 @@ func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 
 	output = "Все существующие дела:\n"
 	for i := range fastTasks {
-		output += emojiFastTask + fmt.Sprintf("%v) %s (интервал: %s)\n",
-			i+1, fastTasks[i].TaskName, fastTasks[i].NotifyInterval.String())
+		output += fmt.Sprintf("%s %v) %s (интервал: %s)\n",
+			emojiFastTask, i+1, fastTasks[i].TaskName, fastTasks[i].NotifyInterval.String())
 	}
 
 	return fastTasks, output, nil

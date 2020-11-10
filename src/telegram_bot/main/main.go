@@ -12,12 +12,11 @@ import (
 	"todo_web_service/src/models"
 	"todo_web_service/src/services"
 	"todo_web_service/src/telegram_bot/schedule"
-
-	"todo_web_service/src/telegram_bot/fast_task"
-	"todo_web_service/src/telegram_bot/user"
 	"todo_web_service/src/telegram_bot/utils"
 
 	"github.com/Syfaro/telegram-bot-api"
+	"todo_web_service/src/telegram_bot/fast_task"
+	"todo_web_service/src/telegram_bot/user"
 )
 
 const (
@@ -30,7 +29,7 @@ func main() {
 
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
-		log.Panic(err)
+		log.Fatal(err)
 	}
 
 	_, err = bot.RemoveWebhook()
@@ -75,7 +74,8 @@ func main() {
 				}
 				bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("Здравствуйте, %s.\nДобро пожаловать!", userName)))
 			} else {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
 		case "userinfo":
@@ -87,7 +87,8 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("Здравствуйте, %s. \nВаш 🆔: %s",
 					user.UserName, strconv.Itoa(user.Id))))
 			} else {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
 		case "suburban":
@@ -101,7 +102,8 @@ func main() {
 
 				bot.Send(tgbotapi.NewMessage(chatId, string(body)))
 			} else {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
 		case "add_fast_task":
@@ -110,7 +112,8 @@ func main() {
 				user.SetState(userId, userName, &userStates, state)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название нового задания."))
 			} else {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
 		case "fast_tasks":
@@ -122,7 +125,8 @@ func main() {
 				}
 				bot.Send(tgbotapi.NewMessage(chatId, reply))
 			} else {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
 		case "delete_fast_task":
@@ -136,7 +140,8 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId, output))
 				user.SetState(userId, userName, &userStates, user.State{Code: user.FAST_TASK_DELETE, Request: "{}"})
 			} else {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных."))
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
 		case "fill_schedule":
@@ -145,50 +150,107 @@ func main() {
 				"Понедельник /add_to_mon \nВторник /add_to_tue \nСреда /add_to_wed "+
 				"\nЧетверг /add_to_thu \nПятница /add_to_fri \nСуббота /add_to_sat \nВоскресенье /add_to_sun"))
 		case "today_schedule":
-			output, err := schedule.GetSchedule(userId, time.Now().Weekday())
-			if err != nil {
-				log.Fatal(err)
-			}
+			if userStates[userId].Code == user.START {
+				output, err := schedule.GetSchedule(userId, time.Now().Weekday())
+				if err != nil {
+					log.Fatal(err)
+				}
 
-			bot.Send(tgbotapi.NewMessage(chatId, output))
+				bot.Send(tgbotapi.NewMessage(chatId, output))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
+			continue
 		case "tomorrow_schedule":
-			output, err := schedule.GetSchedule(userId, time.Now().Weekday()+1)
-			if err != nil {
-				log.Fatal(err)
-			}
+			if userStates[userId].Code == user.START {
+				output, err := schedule.GetSchedule(userId, time.Now().Weekday()+1)
+				if err != nil {
+					log.Fatal(err)
+				}
 
-			bot.Send(tgbotapi.NewMessage(chatId, output))
+				bot.Send(tgbotapi.NewMessage(chatId, output))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
+			continue
 		case "weekday_schedule":
-			bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
-			user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_WEEKDAY, Request: "{}"})
+			if userStates[userId].Code == user.START {
+				bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
+				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_WEEKDAY, Request: "{}"})
+				continue
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
 		case "add_to_mon":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_MON)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_MON)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
 		case "add_to_tue":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_TUE)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_TUE)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
 		case "add_to_wed":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_WED)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_WED)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
 		case "add_to_thu":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_THU)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_THU)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
 		case "add_to_fri":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_FRI)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_FRI)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
 		case "add_to_sat":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SAT)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
-		case "add_to_sun":
-			schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SUN)
-			bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SAT)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 			continue
+		case "add_to_sun":
+			if userStates[userId].Code == user.START {
+				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SUN)
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
+			continue
+		case "reset":
+			user.ResetState(userId, userName, &userStates)
+			bot.Send(tgbotapi.NewMessage(chatId, "Ввод данных прерван."))
 		}
 
 		if userStates[userId].Code != user.START {
