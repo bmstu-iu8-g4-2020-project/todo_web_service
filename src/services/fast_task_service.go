@@ -85,7 +85,6 @@ func (db *DataBase) UpdateFastTasks(fastTasks []models.FastTask) error {
 }
 
 func (db *DataBase) DeleteFastTask(ftId int) error {
-	log.Println("fast task in service: ", ftId)
 	result, err := db.Exec("DELETE FROM fast_task WHERE id = $1", ftId)
 	if err != nil {
 		return err

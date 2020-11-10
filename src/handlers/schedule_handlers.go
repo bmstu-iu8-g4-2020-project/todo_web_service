@@ -41,3 +41,12 @@ func (env *Environment) GetScheduleTaskHandler(w http.ResponseWriter, r *http.Re
 
 	json.NewEncoder(w).Encode(scheduleTasks)
 }
+
+func (env *Environment) ClearAllHandler(w http.ResponseWriter, r *http.Request) {
+	assigneeId, _ := strconv.Atoi(mux.Vars(r)["id"])
+	err := env.Db.ClearAll(assigneeId)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+}

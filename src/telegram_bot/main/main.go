@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 	"todo_web_service/src/models"
 	"todo_web_service/src/services"
@@ -145,10 +146,15 @@ func main() {
 			}
 			continue
 		case "fill_schedule":
-			// Заполнение всех полей расписания в базе данных расписания.
-			bot.Send(tgbotapi.NewMessage(chatId, "Выберете день недели, куда вы хотели юы добавить дело:\n"+
-				"Понедельник /add_to_mon \nВторник /add_to_tue \nСреда /add_to_wed "+
-				"\nЧетверг /add_to_thu \nПятница /add_to_fri \nСуббота /add_to_sat \nВоскресенье /add_to_sun"))
+			if userStates[userId].Code == user.START {
+				bot.Send(tgbotapi.NewMessage(chatId, "Выберете день недели, куда вы хотели юы добавить дело:\n"+
+					"Понедельник /add_to_mon \nВторник /add_to_tue \nСреда /add_to_wed "+
+					"\nЧетверг /add_to_thu \nПятница /add_to_fri \nСуббота /add_to_sat \nВоскресенье /add_to_sun"))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
+			continue
 		case "today_schedule":
 			if userStates[userId].Code == user.START {
 				output, err := schedule.GetSchedule(userId, time.Now().Weekday())
@@ -178,8 +184,20 @@ func main() {
 		case "weekday_schedule":
 			if userStates[userId].Code == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_WEEKDAY, Request: "{}"})
-				continue
+				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_OUTPUT_WEEKDAY, Request: "{}"})
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
+			continue
+		case "delete_schedule":
+			if userStates[userId].Code == user.START {
+				bot.Send(tgbotapi.NewMessage(chatId,
+					"Если вы хотите очистить расписание на всю неделю, используйте /clear_schedule"))
+				bot.Send(tgbotapi.NewMessage(chatId,
+					"Если вам необходимо очистить расписание на конкретный день недели, используйте \n/clear_weekday_schedule (в разработке)"))
+				bot.Send(tgbotapi.NewMessage(chatId,
+					"Если вам просто нужно удалить какую-то задачу на конкретный день недели, используйте \n/clear_schedule_task (в разработке)"))
 			} else {
 				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
 					"Если хотите прервать ввод, используйте /reset."))
@@ -243,6 +261,25 @@ func main() {
 			if userStates[userId].Code == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SUN)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
+			continue
+		case "clear_schedule_task":
+			if userStates[userId].Code == user.START {
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно удалить задачу."))
+				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_TASK, Request: "{}"})
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			} // TODO: Доделать сие.
+			continue
+
+		case "clear_schedule":
+			if userStates[userId].Code == user.START {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы точно хотите ПОЛНОСТЬЮ очистить ваше текущее расписание? Да или нет?"))
+				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
 			} else {
 				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
 					"Если хотите прервать ввод, используйте /reset."))
@@ -437,10 +474,10 @@ func main() {
 					services.WeekdayToStr(scheduleTask.WeekDay))))
 
 				user.ResetState(userId, userName, &userStates)
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_WEEKDAY {
-				weekday, err := services.StrToWeekday(msg.Text)
+			} else if userStates[userId].Code == user.SCHEDULE_ENTER_OUTPUT_WEEKDAY {
+				weekday, err := services.StrToWeekday(strings.Title(msg.Text))
 				if err != nil {
-					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник"))
+					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник)"))
 					continue
 				}
 
@@ -452,6 +489,23 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId, output))
 
 				user.ResetState(userId, userName, &userStates)
+			} else if userStates[userId].Code == user.SCHEDULE_DELETE_CLEARALL {
+				if strings.ToLower(msg.Text) == "да" {
+					bot.Send(tgbotapi.NewMessage(chatId, "Ок, очищаю ваше расписание..."))
+					err := schedule.ClearAll(userId)
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					bot.Send(tgbotapi.NewMessage(chatId, "Расписание очищено!"))
+					user.ResetState(userId, userName, &userStates)
+				} else if strings.ToLower(msg.Text) == "нет" {
+					bot.Send(tgbotapi.NewMessage(chatId, "Хорошо, не будем ничего удалять."))
+					user.ResetState(userId, userName, &userStates)
+				} else {
+					bot.Send(tgbotapi.NewMessage(chatId, "Ответ не понятен, введите да, либо нет."))
+				}
+				continue
 			}
 		}
 	}

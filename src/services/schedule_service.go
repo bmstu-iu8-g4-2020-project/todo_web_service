@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"time"
 	"todo_web_service/src/models"
 	"todo_web_service/src/telegram_bot/user"
@@ -100,4 +101,15 @@ func (db *DataBase) GetSchedule(assigneeId int, weekday time.Weekday) ([]models.
 	}
 
 	return scheduleTasks, nil
+}
+
+func (db *DataBase) ClearAll(assigneeId int) error {
+	result, err := db.Exec("DELETE FROM schedule WHERE assignee_id = $1", assigneeId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(result.RowsAffected())
+
+	return nil
 }

@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 	"todo_web_service/src/models"
 	"todo_web_service/src/services"
 	"todo_web_service/src/telegram_bot/user"
+	"todo_web_service/src/telegram_bot/utils"
 )
 
 const (
@@ -61,6 +63,12 @@ func GetSchedule(userId int, weekday time.Weekday) (string, error) {
 		return "", err
 	}
 
+	if len(weekdaySchedule) == 0 {
+		output := fmt.Sprintf("Похоже, что на %s у вас ещё нет дел, добавим? \n/fill_schedule",
+			strings.ToLower(services.WeekdayToStr(weekday)))
+		return output, nil
+	}
+
 	// Сортируем по времени начала дел.
 	sort.SliceStable(weekdaySchedule, func(i, j int) bool {
 		return weekdaySchedule[i].Start.Before(weekdaySchedule[j].Start)
@@ -76,4 +84,12 @@ func GetSchedule(userId int, weekday time.Weekday) (string, error) {
 	}
 
 	return output, nil
+}
+
+func ClearAll(userId int) error {
+	_, err := utils.Delete(DefaultServiceUrl + fmt.Sprintf("%v/schedule/", userId))
+	if err != nil {
+		return err
+	}
+	return nil
 }
