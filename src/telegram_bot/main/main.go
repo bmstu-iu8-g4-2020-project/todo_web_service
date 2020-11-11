@@ -65,10 +65,11 @@ func main() {
 		msg := update.Message
 		userId := update.Message.From.ID
 		userName := update.Message.From.UserName
+		userStateCode, userStateReq := userStates[userId].Code, userStates[userId].Request
 
 		switch update.Message.Command() {
 		case "start":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				err = user.InitUser(userId, userName)
 				if err != nil {
 					log.Fatal(err)
@@ -80,7 +81,7 @@ func main() {
 			}
 			continue
 		case "userinfo":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				user, err := user.GetUser(userId)
 				if err != nil {
 					log.Fatal(err)
@@ -93,7 +94,7 @@ func main() {
 			}
 			continue
 		case "suburban":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				resp, err := http.Get(SuburbanServiceUrl)
 				if err != nil {
 					log.Fatal(err)
@@ -108,7 +109,7 @@ func main() {
 			}
 			continue
 		case "add_fast_task":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				state := user.State{Code: user.FAST_TASK_ENTER_TITLE, Request: "{}"}
 				user.SetState(userId, userName, &userStates, state)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название нового задания."))
@@ -118,7 +119,7 @@ func main() {
 			}
 			continue
 		case "fast_tasks":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				// Получаем все задачи данного пользователя.
 				_, reply, err := fast_task.OutputFastTasks(userId)
 				if err != nil {
@@ -131,7 +132,7 @@ func main() {
 			}
 			continue
 		case "delete_fast_task":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId,
 					"Какая из этих задач уже выполнена? (введите её порядковый номер)"))
 				_, output, err := fast_task.OutputFastTasks(userId)
@@ -146,7 +147,7 @@ func main() {
 			}
 			continue
 		case "fill_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "Выберете день недели, куда вы хотели юы добавить дело:\n"+
 					"Понедельник /add_to_mon \nВторник /add_to_tue \nСреда /add_to_wed "+
 					"\nЧетверг /add_to_thu \nПятница /add_to_fri \nСуббота /add_to_sat \nВоскресенье /add_to_sun"))
@@ -156,7 +157,7 @@ func main() {
 			}
 			continue
 		case "today_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				_, output, err := schedule.GetWeekdaySchedule(userId, time.Now().Weekday())
 				if err != nil {
 					log.Fatal(err)
@@ -169,7 +170,7 @@ func main() {
 			}
 			continue
 		case "tomorrow_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				_, output, err := schedule.GetWeekdaySchedule(userId, time.Now().Weekday()+1)
 				if err != nil {
 					log.Fatal(err)
@@ -182,7 +183,7 @@ func main() {
 			}
 			continue
 		case "weekday_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
 				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_OUTPUT_WEEKDAY, Request: "{}"})
 			} else {
@@ -191,7 +192,7 @@ func main() {
 			}
 			continue
 		case "delete_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId,
 					"Если вы хотите очистить расписание на всю неделю, используйте /clear_schedule"))
 				bot.Send(tgbotapi.NewMessage(chatId,
@@ -204,7 +205,7 @@ func main() {
 			}
 			continue
 		case "add_to_mon":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_MON)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -213,7 +214,7 @@ func main() {
 			}
 			continue
 		case "add_to_tue":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_TUE)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -222,7 +223,7 @@ func main() {
 			}
 			continue
 		case "add_to_wed":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_WED)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -231,7 +232,7 @@ func main() {
 			}
 			continue
 		case "add_to_thu":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_THU)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -240,7 +241,7 @@ func main() {
 			}
 			continue
 		case "add_to_fri":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_FRI)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -249,7 +250,7 @@ func main() {
 			}
 			continue
 		case "add_to_sat":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SAT)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -258,7 +259,7 @@ func main() {
 			}
 			continue
 		case "add_to_sun":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SUN)
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
@@ -267,7 +268,7 @@ func main() {
 			}
 			continue
 		case "clear_schedule_task":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно удалить задачу."))
 				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_NUM_TASK, Request: "{}"})
 			} else {
@@ -276,7 +277,7 @@ func main() {
 			}
 			continue
 		case "clear_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "Вы точно хотите ПОЛНОСТЬЮ очистить ваше текущее расписание? Да или нет?"))
 				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
 			} else {
@@ -285,7 +286,7 @@ func main() {
 			}
 			continue
 		case "clear_weekday_schedule":
-			if userStates[userId].Code == user.START {
+			if userStateCode == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "Расписание на какой день недели вы хотите очистить?"))
 				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_WEEKDAY, Request: "{}"})
 			} else {
@@ -298,10 +299,9 @@ func main() {
 			bot.Send(tgbotapi.NewMessage(chatId, "Ввод данных прерван."))
 		}
 
-		if userStates[userId].Code != user.START {
-
+		if userStateCode != user.START {
 			/* FastTask */
-			if userStates[userId].Code == user.FAST_TASK_ENTER_TITLE {
+			if userStateCode == user.FAST_TASK_ENTER_TITLE {
 				var fastTask models.FastTask
 				if msg.Text == "" {
 					bot.Send(tgbotapi.NewMessage(chatId, "Нет текстового сообщения, попробуйте ещё раз."))
@@ -317,7 +317,7 @@ func main() {
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.FAST_TASK_ENTER_INTERVAL, Request: string(b)})
-			} else if userStates[userId].Code == user.FAST_TASK_ENTER_INTERVAL {
+			} else if userStateCode == user.FAST_TASK_ENTER_INTERVAL {
 				var fastTask models.FastTask
 				interval, err := time.ParseDuration(update.Message.Text)
 				if err != nil {
@@ -345,7 +345,7 @@ func main() {
 
 				bot.Send(tgbotapi.NewMessage(chatId, "Задача успешно добавлена!"))
 				user.ResetState(userId, userName, &userStates)
-			} else if userStates[userId].Code == user.FAST_TASK_DELETE {
+			} else if userStateCode == user.FAST_TASK_DELETE {
 				fastTasks, _, err := fast_task.OutputFastTasks(userId)
 
 				// Считываем порядковый номер задачи, которую нужно удалить.
@@ -380,9 +380,9 @@ func main() {
 				user.ResetState(userId, userName, &userStates)
 
 				/* Schedule */
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_TITLE {
+			} else if userStateCode == user.SCHEDULE_ENTER_TITLE {
 				var scheduleTask models.ScheduleTask
-				data := []byte(userStates[userId].Request)
+				data := []byte(userStateReq)
 
 				err = json.Unmarshal(data, &scheduleTask)
 				if err != nil {
@@ -405,9 +405,9 @@ func main() {
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.SCHEDULE_ENTER_PLACE, Request: string(b)})
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_PLACE {
+			} else if userStateCode == user.SCHEDULE_ENTER_PLACE {
 				var scheduleTask models.ScheduleTask
-				data := []byte(userStates[userId].Request)
+				data := []byte(userStateReq)
 
 				err = json.Unmarshal(data, &scheduleTask)
 				if err != nil {
@@ -429,9 +429,9 @@ func main() {
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.SCHEDULE_ENTER_SPEAKER, Request: string(b)})
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_SPEAKER {
+			} else if userStateCode == user.SCHEDULE_ENTER_SPEAKER {
 				var scheduleTask models.ScheduleTask
-				data := []byte(userStates[userId].Request)
+				data := []byte(userStateReq)
 
 				err = json.Unmarshal(data, &scheduleTask)
 				if err != nil {
@@ -453,9 +453,9 @@ func main() {
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.SCHEDULE_ENTER_START, Request: string(b)})
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_START {
+			} else if userStateCode == user.SCHEDULE_ENTER_START {
 				var scheduleTask models.ScheduleTask
-				data := []byte(userStates[userId].Request)
+				data := []byte(userStateReq)
 
 				err = json.Unmarshal(data, &scheduleTask)
 				if err != nil {
@@ -476,10 +476,10 @@ func main() {
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.SCHEDULE_ENTER_END, Request: string(b)})
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_END {
+			} else if userStateCode == user.SCHEDULE_ENTER_END {
 				var scheduleTask models.ScheduleTask
 
-				err = json.Unmarshal([]byte(userStates[userId].Request), &scheduleTask)
+				err = json.Unmarshal([]byte(userStateReq), &scheduleTask)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -500,7 +500,7 @@ func main() {
 					services.WeekdayToStr(scheduleTask.WeekDay))))
 
 				user.ResetState(userId, userName, &userStates)
-			} else if userStates[userId].Code == user.SCHEDULE_ENTER_OUTPUT_WEEKDAY {
+			} else if userStateCode == user.SCHEDULE_ENTER_OUTPUT_WEEKDAY {
 				weekday, err := services.StrToWeekday(strings.Title(msg.Text))
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник)"))
@@ -515,7 +515,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId, output))
 
 				user.ResetState(userId, userName, &userStates)
-			} else if userStates[userId].Code == user.SCHEDULE_DELETE_CLEARALL {
+			} else if userStateCode == user.SCHEDULE_DELETE_CLEARALL {
 				if strings.ToLower(msg.Text) == "да" {
 					bot.Send(tgbotapi.NewMessage(chatId, "Ок, очищаю ваше расписание..."))
 					err := schedule.ClearAll(userId)
@@ -532,7 +532,7 @@ func main() {
 					bot.Send(tgbotapi.NewMessage(chatId, "Ответ не понятен, введите да, либо нет."))
 				}
 				continue
-			} else if userStates[userId].Code == user.SCHEDULE_DELETE_NUM_TASK {
+			} else if userStateCode == user.SCHEDULE_DELETE_NUM_TASK {
 				weekday, err := services.StrToWeekday(strings.Title(msg.Text))
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник)"))
@@ -557,9 +557,9 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId, "Итак, теперь введите номер задачи, которую вы желаете удалить из"))
 
 				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_TASK, Request: string(b)})
-			} else if userStates[userId].Code == user.SCHEDULE_DELETE_TASK {
+			} else if userStateCode == user.SCHEDULE_DELETE_TASK {
 				var scheduleTasks []models.ScheduleTask
-				err = json.Unmarshal([]byte(userStates[userId].Request), &scheduleTasks)
+				err = json.Unmarshal([]byte(userStateReq), &scheduleTasks)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -590,7 +590,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId, output))
 
 				user.ResetState(userId, userName, &userStates)
-			} else if userStates[userId].Code == user.SCHEDULE_DELETE_WEEKDAY {
+			} else if userStateCode == user.SCHEDULE_DELETE_WEEKDAY {
 				weekday, err := services.StrToWeekday(strings.Title(msg.Text))
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник)"))
