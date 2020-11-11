@@ -197,7 +197,7 @@ func main() {
 				bot.Send(tgbotapi.NewMessage(chatId,
 					"Если вам необходимо очистить расписание на конкретный день недели, используйте \n/clear_weekday_schedule (в разработке)"))
 				bot.Send(tgbotapi.NewMessage(chatId,
-					"Если вам просто нужно удалить какую-то задачу на конкретный день недели, используйте \n/clear_schedule_task (в разработке)"))
+					"Если вам просто нужно удалить какую-то задачу на конкретный день недели, используйте \n/clear_schedule_task"))
 			} else {
 				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
 					"Если хотите прервать ввод, используйте /reset."))
@@ -269,11 +269,11 @@ func main() {
 		case "clear_schedule_task":
 			if userStates[userId].Code == user.START {
 				bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно удалить задачу."))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_TASK, Request: "{}"})
+				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_NUM_TASK, Request: "{}"})
 			} else {
 				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
 					"Если хотите прервать ввод, используйте /reset."))
-			} // TODO: Доделать сие.
+			}
 			continue
 
 		case "clear_schedule":
@@ -470,9 +470,8 @@ func main() {
 					user.State{Code: user.SCHEDULE_ENTER_END, Request: string(b)})
 			} else if userStates[userId].Code == user.SCHEDULE_ENTER_END {
 				var scheduleTask models.ScheduleTask
-				data := []byte(userStates[userId].Request)
 
-				err = json.Unmarshal(data, &scheduleTask)
+				err = json.Unmarshal([]byte(userStates[userId].Request), &scheduleTask)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -525,7 +524,7 @@ func main() {
 					bot.Send(tgbotapi.NewMessage(chatId, "Ответ не понятен, введите да, либо нет."))
 				}
 				continue
-			} else if userStates[userId].Code == user.SCHEDULE_DELETE_TASK {
+			} else if userStates[userId].Code == user.SCHEDULE_DELETE_NUM_TASK {
 				weekday, err := services.StrToWeekday(strings.Title(msg.Text))
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник)"))
@@ -541,14 +540,49 @@ func main() {
 						fmt.Sprintf("Кажется, на %s задач не существует. Удалять тут нечего. Ещё разок? /clear_schedule_task",
 							strings.ToLower(msg.Text))))
 				}
-				b, err = json.Marshal(weekdaySchedule)
-				// TODO: замаршелить weekdaySchedule и отправить его дальше.
+				b, err := json.Marshal(weekdaySchedule)
 				if err != nil {
 					log.Fatal(err)
 				}
 
 				bot.Send(tgbotapi.NewMessage(chatId, output))
 				bot.Send(tgbotapi.NewMessage(chatId, "Итак, теперь введите номер задачи, которую вы желаете удалить из"))
+
+				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_TASK, Request: string(b)})
+			} else if userStates[userId].Code == user.SCHEDULE_DELETE_TASK {
+				var scheduleTasks []models.ScheduleTask
+				err = json.Unmarshal([]byte(userStates[userId].Request), &scheduleTasks)
+				if err != nil {
+					log.Fatal(err)
+				}
+				weekday := scheduleTasks[0].WeekDay
+
+				num, err := strconv.Atoi(msg.Text)
+				if err != nil {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Кажется, вы ввели не число. Введите номер задания, который хотите удалить."))
+					continue
+				}
+
+				if num <= 0 || num > len(scheduleTasks) {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Кажется, такого дела не существует. Введите номер задания, который хотите удалить."))
+					continue
+				}
+
+				scheduleTaskDeleteUrl := DefaultServiceUrl +
+					fmt.Sprintf("%v/schedule/%v/", userId, scheduleTasks[num-1].Id)
+
+				_, err = utils.Delete(scheduleTaskDeleteUrl)
+				if err != nil {
+					log.Fatal(err)
+				}
+				bot.Send(tgbotapi.NewMessage(chatId, "Задание успешно удалено."))
+				_, output, err := schedule.GetWeekdaySchedule(userId, weekday)
+				if err != nil {
+					log.Fatal(err)
+				}
+				bot.Send(tgbotapi.NewMessage(chatId, output))
 
 				user.ResetState(userId, userName, &userStates)
 			}

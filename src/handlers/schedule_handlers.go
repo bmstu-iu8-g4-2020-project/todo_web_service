@@ -50,3 +50,13 @@ func (env *Environment) ClearAllHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 }
+
+func (env *Environment) DeleteScheduleTaskHandler(w http.ResponseWriter, r *http.Request) {
+	schId, _ := strconv.Atoi(mux.Vars(r)["sch_id"])
+
+	err := env.Db.DeleteScheduleTask(schId)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+	}
+
+}

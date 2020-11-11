@@ -113,3 +113,14 @@ func (db *DataBase) ClearAll(assigneeId int) error {
 
 	return nil
 }
+
+func (db *DataBase) DeleteScheduleTask(schId int) error {
+	result, err := db.Exec("DELETE FROM schedule WHERE id = $1", schId)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(result.RowsAffected())
+
+	return nil
+}
