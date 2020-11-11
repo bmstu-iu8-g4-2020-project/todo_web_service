@@ -296,8 +296,7 @@ func main() {
 			if userStates[userId].Code == user.FAST_TASK_ENTER_TITLE {
 				var fastTask models.FastTask
 				if msg.Text == "" {
-					bot.Send(tgbotapi.NewMessage(chatId, "Нет текстового сообщения, введите команду заново."))
-					user.ResetState(userId, userName, &userStates)
+					bot.Send(tgbotapi.NewMessage(chatId, "Нет текстового сообщения, попробуйте ещё раз."))
 					continue
 				}
 				fastTask.TaskName = msg.Text
@@ -315,8 +314,7 @@ func main() {
 				interval, err := time.ParseDuration(update.Message.Text)
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId,
-						"Кажется, введённое вами сообщение не удовлетворяет формату. Введите команду ещё раз."))
-					user.ResetState(userId, userName, &userStates)
+						"Кажется, введённое вами сообщение не удовлетворяет формату. (пример: 1h40m13s) Попробуйте ещё раз."))
 					continue
 				}
 				currUser, err := user.GetUser(userId)
@@ -345,15 +343,14 @@ func main() {
 				// Считываем порядковый номер задачи, которую нужно удалить.
 				ftNumber, err := strconv.Atoi(msg.Text)
 				if err != nil {
-					bot.Send(tgbotapi.NewMessage(chatId, "Кажется, вы ввели не число. Введите команду ещё раз."))
-					user.ResetState(userId, userName, &userStates)
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Кажется, вы ввели не число. Введите номер задания, который хотите удалить."))
 					continue
 				}
 
 				if ftNumber <= 0 || ftNumber > len(fastTasks) {
 					bot.Send(tgbotapi.NewMessage(chatId,
-						"Кажется, такого дела не существует. Введите команду ещё раз."))
-					user.ResetState(userId, userName, &userStates)
+						"Кажется, такого дела не существует. Введите номер задания, который хотите удалить."))
 					continue
 				}
 
@@ -383,6 +380,13 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
+
+				if msg.Text == "" {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Кажется, вы отправили не текстовое сообщение. Введите название задания."))
+					continue
+				}
+
 				scheduleTask.Title = msg.Text
 				b, err := json.Marshal(scheduleTask)
 				if err != nil {
@@ -400,6 +404,13 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
+
+				if msg.Text == "" {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Кажется, вы отправили не текстовое сообщение. Введите место проведения."))
+					continue
+				}
+
 				scheduleTask.Place = msg.Text
 				b, err := json.Marshal(scheduleTask)
 				if err != nil {
@@ -417,6 +428,13 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
+
+				if msg.Text == "" {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Кажется, вы отправили не текстовое сообщение. Введите имя спикера."))
+					continue
+				}
+
 				scheduleTask.Speaker = msg.Text
 				b, err := json.Marshal(scheduleTask)
 				if err != nil {
