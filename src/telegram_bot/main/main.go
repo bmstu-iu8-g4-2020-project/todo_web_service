@@ -382,8 +382,9 @@ func main() {
 				}
 
 				if msg.Text == "" {
-					bot.Send(tgbotapi.NewMessage(chatId,
+					_, _ = bot.Send(tgbotapi.NewMessage(chatId,
 						"Кажется, вы отправили не текстовое сообщение. Введите название задания."))
+
 					continue
 				}
 
