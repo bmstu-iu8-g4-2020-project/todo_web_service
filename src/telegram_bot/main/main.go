@@ -157,7 +157,7 @@ func main() {
 			continue
 		case "today_schedule":
 			if userStates[userId].Code == user.START {
-				output, err := schedule.GetSchedule(userId, time.Now().Weekday())
+				_, output, err := schedule.GetWeekdaySchedule(userId, time.Now().Weekday())
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -170,7 +170,7 @@ func main() {
 			continue
 		case "tomorrow_schedule":
 			if userStates[userId].Code == user.START {
-				output, err := schedule.GetSchedule(userId, time.Now().Weekday()+1)
+				_, output, err := schedule.GetWeekdaySchedule(userId, time.Now().Weekday()+1)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -382,7 +382,7 @@ func main() {
 				}
 
 				if msg.Text == "" {
-					_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					bot.Send(tgbotapi.NewMessage(chatId,
 						"Кажется, вы отправили не текстовое сообщение. Введите название задания."))
 
 					continue
@@ -500,7 +500,7 @@ func main() {
 					continue
 				}
 
-				output, err := schedule.GetSchedule(userId, weekday)
+				_, output, err := schedule.GetWeekdaySchedule(userId, weekday)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -525,6 +525,32 @@ func main() {
 					bot.Send(tgbotapi.NewMessage(chatId, "Ответ не понятен, введите да, либо нет."))
 				}
 				continue
+			} else if userStates[userId].Code == user.SCHEDULE_DELETE_TASK {
+				weekday, err := services.StrToWeekday(strings.Title(msg.Text))
+				if err != nil {
+					bot.Send(tgbotapi.NewMessage(chatId, "Нет-нет. Введите день недели. (например: Понедельник)"))
+					continue
+				}
+
+				weekdaySchedule, output, err := schedule.GetWeekdaySchedule(userId, weekday)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if weekdaySchedule == nil {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						fmt.Sprintf("Кажется, на %s задач не существует. Удалять тут нечего. Ещё разок? /clear_schedule_task",
+							strings.ToLower(msg.Text))))
+				}
+				b, err = json.Marshal(weekdaySchedule)
+				// TODO: замаршелить weekdaySchedule и отправить его дальше.
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				bot.Send(tgbotapi.NewMessage(chatId, output))
+				bot.Send(tgbotapi.NewMessage(chatId, "Итак, теперь введите номер задачи, которую вы желаете удалить из"))
+
+				user.ResetState(userId, userName, &userStates)
 			}
 		}
 	}

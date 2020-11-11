@@ -49,24 +49,24 @@ func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 	return nil
 }
 
-func GetSchedule(userId int, weekday time.Weekday) (string, error) {
+func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask, string, error) {
 	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/%s/", userId, weekday)
 
 	resp, err := http.Get(url)
 
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
 	var weekdaySchedule []models.ScheduleTask
 	err = json.NewDecoder(resp.Body).Decode(&weekdaySchedule)
 	if err != nil {
-		return "", err
+		return nil, "", err
 	}
 
 	if len(weekdaySchedule) == 0 {
 		output := fmt.Sprintf("Похоже, что на %s у вас ещё нет дел, добавим? \n/fill_schedule",
 			strings.ToLower(services.WeekdayToStr(weekday)))
-		return output, nil
+		return nil, output, nil
 	}
 
 	// Сортируем по времени начала дел.
@@ -75,7 +75,8 @@ func GetSchedule(userId int, weekday time.Weekday) (string, error) {
 	})
 
 	output := fmt.Sprintf("%s:\n\n", services.WeekdayToStr(weekday))
-	for _, scheduleTask := range weekdaySchedule {
+	for i, scheduleTask := range weekdaySchedule {
+		output += fmt.Sprintf("Задача %v\n", i+1)
 		output += fmt.Sprintf("%s %s\n", emojiTitle, scheduleTask.Title)
 		output += fmt.Sprintf("%s %s - %s \n",
 			emojiTime, scheduleTask.Start.Format(layoutTime), scheduleTask.End.Format(layoutTime))
@@ -83,7 +84,7 @@ func GetSchedule(userId int, weekday time.Weekday) (string, error) {
 		output += fmt.Sprintf("%s %s\n\n", emojiSpeaker, scheduleTask.Speaker)
 	}
 
-	return output, nil
+	return weekdaySchedule, output, nil
 }
 
 func ClearAll(userId int) error {
