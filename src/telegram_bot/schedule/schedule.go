@@ -50,7 +50,7 @@ func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 }
 
 func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask, string, error) {
-	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/%s/", userId, weekday)
+	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/%s/", userId, weekday.String())
 
 	resp, err := http.Get(url)
 
@@ -64,7 +64,7 @@ func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask
 	}
 
 	if len(weekdaySchedule) == 0 {
-		output := fmt.Sprintf("Похоже, что на %s у вас ещё нет дел, добавим? \n/fill_schedule",
+		output := fmt.Sprintf("Похоже, что %s у вас ещё не имеет дел, добавим? \n/fill_schedule",
 			strings.ToLower(services.WeekdayToStr(weekday)))
 		return nil, output, nil
 	}

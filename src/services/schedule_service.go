@@ -124,3 +124,15 @@ func (db *DataBase) DeleteScheduleTask(schId int) error {
 
 	return nil
 }
+
+func (db *DataBase) DeleteScheduleWeek(assigneeId int, weekday time.Weekday) error {
+	result, err := db.Exec("DELETE FROM schedule WHERE assignee_id = $1 AND week_day = $2",
+		assigneeId, weekday.String())
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(result.RowsAffected())
+
+	return nil
+}

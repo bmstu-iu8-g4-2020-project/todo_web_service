@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -58,5 +59,22 @@ func (env *Environment) DeleteScheduleTaskHandler(w http.ResponseWriter, r *http
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
+}
 
+func (env *Environment) DeleteScheduleWeekHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("В меня вошли!")
+	params := mux.Vars(r)
+	assigneeId, _ := strconv.Atoi(params["id"])
+	weekday, err := services.StrToWeekday(params["week_day"])
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	err = env.Db.DeleteScheduleWeek(assigneeId, weekday)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	fmt.Println("Из меня вышли без ошибок!")
 }
