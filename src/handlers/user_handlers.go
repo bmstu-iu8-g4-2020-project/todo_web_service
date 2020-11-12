@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -12,6 +14,19 @@ import (
 
 type Environment struct {
 	Db services.Datastore
+}
+
+func ValidateUserId(userIdStr string) (int, error) {
+	err := validation.Validate(userIdStr, validation.Required, is.Int, validation.Length(6, 10))
+	if err != nil {
+		return 0, err
+	}
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		return 0, err
+	}
+
+	return userId, nil
 }
 
 func (env *Environment) AddUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +45,7 @@ func (env *Environment) AddUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Environment) GetUserHandler(w http.ResponseWriter, r *http.Request) {
-	userId, err := strconv.Atoi(mux.Vars(r)["id"])
+	userId, err := ValidateUserId(mux.Vars(r)["id"])
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return

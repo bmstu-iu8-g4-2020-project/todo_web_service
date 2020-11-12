@@ -63,7 +63,7 @@ func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask
 		return nil, "", err
 	}
 
-	if len(weekdaySchedule) == 0 {
+	if weekdaySchedule == nil {
 		output := fmt.Sprintf("Похоже, что %s у вас ещё не имеет дел, добавим? \n/fill_schedule",
 			strings.ToLower(services.WeekdayToStr(weekday)))
 		return nil, output, nil
@@ -74,17 +74,17 @@ func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask
 		return weekdaySchedule[i].Start.Before(weekdaySchedule[j].Start)
 	})
 
-	output := fmt.Sprintf("%s:\n\n", services.WeekdayToStr(weekday))
+	var output strings.Builder
+	fmt.Fprintf(&output, "%s:\n\n", services.WeekdayToStr(weekday))
 	for i, scheduleTask := range weekdaySchedule {
-		output += fmt.Sprintf("Задача %v\n", i+1)
-		output += fmt.Sprintf("%s %s\n", emojiTitle, scheduleTask.Title)
-		output += fmt.Sprintf("%s %s - %s \n",
-			emojiTime, scheduleTask.Start.Format(layoutTime), scheduleTask.End.Format(layoutTime))
-		output += fmt.Sprintf("%s %s\n", emojiPlace, scheduleTask.Place)
-		output += fmt.Sprintf("%s %s\n\n", emojiSpeaker, scheduleTask.Speaker)
+		fmt.Fprintf(&output, "Задача %v\n", i+1)
+		fmt.Fprintf(&output, "%s %s\n", emojiTitle, scheduleTask.Title)
+		fmt.Fprintf(&output, "%s %s - %s \n", emojiTime, scheduleTask.Start.Format(layoutTime), scheduleTask.End.Format(layoutTime))
+		fmt.Fprintf(&output, "%s %s\n", emojiPlace, scheduleTask.Place)
+		fmt.Fprintf(&output, "%s %s\n\n", emojiSpeaker, scheduleTask.Speaker)
 	}
 
-	return weekdaySchedule, output, nil
+	return weekdaySchedule, output.String(), nil
 }
 
 func ClearAll(userId int) error {

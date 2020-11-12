@@ -297,6 +297,7 @@ func main() {
 		case "reset":
 			user.ResetState(userId, userName, &userStates)
 			bot.Send(tgbotapi.NewMessage(chatId, "Ввод данных прерван."))
+			continue
 		}
 
 		if userStateCode != user.START {

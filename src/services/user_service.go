@@ -3,7 +3,6 @@ package services
 import (
 	"fmt"
 	"log"
-
 	"todo_web_service/src/models"
 )
 
@@ -15,7 +14,6 @@ func (db *DataBase) AddUser(user models.User) error {
 	}
 
 	log.Println(result.LastInsertId())
-	log.Println(result.RowsAffected())
 	return nil
 }
 

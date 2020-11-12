@@ -2,62 +2,85 @@ package services
 
 import (
 	"errors"
-	"fmt"
 	"time"
 	"todo_web_service/src/models"
 	"todo_web_service/src/telegram_bot/user"
 )
 
 func StrToWeekday(strWeekday string) (time.Weekday, error) {
-	var weekDays = map[string]time.Weekday{
-		"Monday":      time.Monday,
-		"Tuesday":     time.Tuesday,
-		"Wednesday":   time.Wednesday,
-		"Thursday":    time.Thursday,
-		"Friday":      time.Friday,
-		"Saturday":    time.Saturday,
-		"Sunday":      time.Sunday,
-		"Понедельник": time.Monday,
-		"Вторник":     time.Tuesday,
-		"Среда":       time.Wednesday,
-		"Четверг":     time.Thursday,
-		"Пятница":     time.Friday,
-		"Суббота":     time.Saturday,
-		"Воскресенье": time.Sunday,
-	}
-	if weekday, ok := weekDays[strWeekday]; ok {
-		return weekday, nil
+	switch strWeekday {
+	case "Monday":
+		return time.Monday, nil
+	case "Понедельник":
+		return time.Monday, nil
+	case "Tuesday":
+		return time.Tuesday, nil
+	case "Вторник":
+		return time.Tuesday, nil
+	case "Wednesday":
+		return time.Wednesday, nil
+	case "Среда":
+		return time.Wednesday, nil
+	case "Thursday":
+		return time.Thursday, nil
+	case "Четверг":
+		return time.Thursday, nil
+	case "Friday":
+		return time.Friday, nil
+	case "Пятница":
+		return time.Friday, nil
+	case "Saturday":
+		return time.Saturday, nil
+	case "Суббота":
+		return time.Saturday, nil
+	case "Sunday":
+		return time.Sunday, nil
+	case "Воскресенье":
+		return time.Sunday, nil
 	}
 
 	return 0, errors.New("the passed string is not a day of the week")
 }
 
 func StateCodeToWeekDay(stateCode int) time.Weekday {
-	var weekDays = map[int]time.Weekday{
-		user.SCHEDULE_FILL_MON: time.Monday,
-		user.SCHEDULE_FILL_TUE: time.Tuesday,
-		user.SCHEDULE_FILL_WED: time.Wednesday,
-		user.SCHEDULE_FILL_THU: time.Thursday,
-		user.SCHEDULE_FILL_FRI: time.Friday,
-		user.SCHEDULE_FILL_SAT: time.Saturday,
-		user.SCHEDULE_FILL_SUN: time.Sunday,
+	switch stateCode {
+	case user.SCHEDULE_FILL_MON:
+		return time.Monday
+	case user.SCHEDULE_FILL_TUE:
+		return time.Tuesday
+	case user.SCHEDULE_FILL_WED:
+		return time.Wednesday
+	case user.SCHEDULE_FILL_THU:
+		return time.Thursday
+	case user.SCHEDULE_FILL_FRI:
+		return time.Friday
+	case user.SCHEDULE_FILL_SAT:
+		return time.Saturday
+	case user.SCHEDULE_FILL_SUN:
+		return time.Sunday
 	}
-
-	return weekDays[stateCode]
+	return 0
 }
 
 func WeekdayToStr(weekday time.Weekday) string {
-	var weekDays = map[time.Weekday]string{
-		time.Monday:    "Понедельник",
-		time.Tuesday:   "Вторник",
-		time.Wednesday: "Среда",
-		time.Thursday:  "Четверг",
-		time.Friday:    "Пятница",
-		time.Saturday:  "Суббота",
-		time.Sunday:    "Воскресенье",
+	switch weekday {
+	case time.Monday:
+		return "Понедельник"
+	case time.Tuesday:
+		return "Вторник"
+	case time.Wednesday:
+		return "Среда"
+	case time.Thursday:
+		return "Четверг"
+	case time.Friday:
+		return "Пятница"
+	case time.Saturday:
+		return "Суббота"
+	case time.Sunday:
+		return "Воскресенье"
 	}
 
-	return weekDays[weekday]
+	return ""
 }
 
 func (db *DataBase) AddScheduleTask(scheduleTask models.ScheduleTask) error {
@@ -68,6 +91,7 @@ func (db *DataBase) AddScheduleTask(scheduleTask models.ScheduleTask) error {
 	if err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -75,7 +99,7 @@ func (db *DataBase) GetSchedule(assigneeId int, weekday time.Weekday) ([]models.
 	rows, err := db.Query("SELECT * FROM schedule WHERE assignee_id = $1 AND week_day = $2;",
 		assigneeId, weekday.String())
 	if err != nil {
-		return []models.ScheduleTask{}, err
+		return nil, err
 	}
 
 	var scheduleTasks []models.ScheduleTask
@@ -87,7 +111,7 @@ func (db *DataBase) GetSchedule(assigneeId int, weekday time.Weekday) ([]models.
 			&scheduleTask.Title, &scheduleTask.Place, &scheduleTask.Speaker, &scheduleTask.Start, &scheduleTask.End)
 
 		if err != nil {
-			return []models.ScheduleTask{}, err
+			return nil, err
 		}
 
 		tempWeekday, err := StrToWeekday(strWeekday)
@@ -104,35 +128,29 @@ func (db *DataBase) GetSchedule(assigneeId int, weekday time.Weekday) ([]models.
 }
 
 func (db *DataBase) ClearAll(assigneeId int) error {
-	result, err := db.Exec("DELETE FROM schedule WHERE assignee_id = $1", assigneeId)
+	_, err := db.Exec("DELETE FROM schedule WHERE assignee_id = $1", assigneeId)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(result.RowsAffected())
 
 	return nil
 }
 
 func (db *DataBase) DeleteScheduleTask(schId int) error {
-	result, err := db.Exec("DELETE FROM schedule WHERE id = $1", schId)
+	_, err := db.Exec("DELETE FROM schedule WHERE id = $1", schId)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(result.RowsAffected())
 
 	return nil
 }
 
 func (db *DataBase) DeleteScheduleWeek(assigneeId int, weekday time.Weekday) error {
-	result, err := db.Exec("DELETE FROM schedule WHERE assignee_id = $1 AND week_day = $2",
+	_, err := db.Exec("DELETE FROM schedule WHERE assignee_id = $1 AND week_day = $2",
 		assigneeId, weekday.String())
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(result.RowsAffected())
 
 	return nil
 }
