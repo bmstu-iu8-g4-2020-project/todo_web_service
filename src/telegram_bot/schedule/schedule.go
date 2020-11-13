@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+	"log"
 	"net/http"
 	"sort"
 	"strings"
@@ -59,6 +61,18 @@ func UpdateScheduleTask(scheduleTask models.ScheduleTask) error {
 	}
 
 	return nil
+}
+
+func GetFullSchedule(bot **tgbotapi.BotAPI, userId int, chatId int64) {
+	weekdays := []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday,
+		time.Friday, time.Saturday, time.Sunday}
+	for _, weekday := range weekdays {
+		_, output, err := GetWeekdaySchedule(userId, weekday)
+		if err != nil {
+			log.Fatal(err)
+		}
+		(*bot).Send(tgbotapi.NewMessage(chatId, output))
+	}
 }
 
 func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask, string, error) {

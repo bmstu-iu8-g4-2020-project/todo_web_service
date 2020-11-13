@@ -157,6 +157,13 @@ func main() {
 					"Если хотите прервать ввод, используйте /reset."))
 			}
 			continue
+		case "full_schedule":
+			if userStateCode == user.START {
+				schedule.GetFullSchedule(&bot, userId, chatId)
+			} else {
+				bot.Send(tgbotapi.NewMessage(chatId, "Вы не закончили ввод данных. \n"+
+					"Если хотите прервать ввод, используйте /reset."))
+			}
 		case "today_schedule":
 			if userStateCode == user.START {
 				_, output, err := schedule.GetWeekdaySchedule(userId, time.Now().Weekday())
