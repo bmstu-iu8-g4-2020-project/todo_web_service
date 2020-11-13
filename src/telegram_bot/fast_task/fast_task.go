@@ -14,19 +14,10 @@ import (
 	"github.com/Syfaro/telegram-bot-api"
 )
 
-const (
-	DefaultServiceUrl = "http://localhost:8080/"
-
-	emojiAttention = "📢"
-	emojiFastTask  = "📌"
-
-	FastTaskPostfix = "fast_task/"
-)
-
 func CheckFastTasks(bot **tgbotapi.BotAPI) {
 	for {
 		var allFastTasks []models.FastTask
-		resp, err := http.Get(DefaultServiceUrl + FastTaskPostfix)
+		resp, err := http.Get(utils.DefaultServiceUrl + "fast_task/")
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -39,7 +30,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			if time.Now().After(currTask.Deadline) {
 				// Отсылаем напоминание пользователю.
 				(*bot).Send(tgbotapi.NewMessage(currTask.ChatId,
-					fmt.Sprintf("%s Напоминание: \n%s", emojiAttention, currTask.TaskName)))
+					fmt.Sprintf("%s Напоминание: \n%s", utils.EmojiAttention, currTask.TaskName)))
 				// Добавляем задачу в батч.
 				batch = append(batch, currTask)
 			}
@@ -49,9 +40,8 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			url := DefaultServiceUrl + FastTaskPostfix
 
-			_, err = utils.Put(url, bytes.NewBuffer(bytesRepr))
+			_, err = utils.Put(utils.DefaultServiceUrl+"fast_task/", bytes.NewBuffer(bytesRepr))
 
 			if err != nil {
 				log.Fatal(err)
@@ -64,7 +54,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 
 func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 	var fastTasks []models.FastTask
-	fastTaskUrl := DefaultServiceUrl + fmt.Sprintf("/%s/fast_task/", strconv.Itoa(assigneeId))
+	fastTaskUrl := fmt.Sprintf("%s%s/fast_task/", utils.DefaultServiceUrl, strconv.Itoa(assigneeId))
 	resp, err := http.Get(fastTaskUrl)
 	if err != nil {
 		return []models.FastTask{}, "", err
@@ -82,7 +72,7 @@ func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 	output = "Все существующие дела:\n"
 	for i := range fastTasks {
 		output += fmt.Sprintf("%s %v) %s (интервал: %s)\n",
-			emojiFastTask, i+1, fastTasks[i].TaskName, fastTasks[i].NotifyInterval.String())
+			utils.EmojiFastTask, i+1, fastTasks[i].TaskName, fastTasks[i].NotifyInterval.String())
 	}
 
 	return fastTasks, output, nil
@@ -102,7 +92,7 @@ func AddFastTask(userId int, taskName string, chatID int64, interval time.Durati
 		return err
 	}
 
-	fastTaskUrl := DefaultServiceUrl + fmt.Sprintf("%s", strconv.Itoa(userId)) + "/fast_task/"
+	fastTaskUrl := fmt.Sprintf("%s%s/fast_task/", utils.DefaultServiceUrl, strconv.Itoa(userId))
 
 	_, err = http.Post(fastTaskUrl, "application/json", bytes.NewBuffer(bytesRepr))
 	if err != nil {

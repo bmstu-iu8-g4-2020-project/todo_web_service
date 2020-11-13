@@ -15,12 +15,7 @@ import (
 )
 
 const (
-	DefaultServiceUrl = "http://localhost:8080/"
-	emojiTitle        = "📃"
-	emojiSpeaker      = "👤"
-	emojiPlace        = "🏫"
-	emojiTime         = "⌚"
-	layoutTime        = "15:04"
+	LayoutTime = "15:04"
 )
 
 func AddToWeekday(userId int, userName string, userStates *map[int]user.State, stateCode int) error {
@@ -39,7 +34,7 @@ func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 	if err != nil {
 		return err
 	}
-	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/", scheduleTask.AssigneeId)
+	url := fmt.Sprintf("%s%v/schedule/", utils.DefaultServiceUrl, scheduleTask.AssigneeId)
 
 	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
 
@@ -51,7 +46,7 @@ func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 }
 
 func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask, string, error) {
-	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/%s/", userId, weekday.String())
+	url := fmt.Sprintf("%s%v/schedule/%s/", utils.DefaultServiceUrl, userId, weekday.String())
 
 	resp, err := http.Get(url)
 
@@ -79,17 +74,17 @@ func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask
 	fmt.Fprintf(&output, "%s:\n\n", services.WeekdayToStr(weekday))
 	for i, scheduleTask := range weekdaySchedule {
 		fmt.Fprintf(&output, "Задача %v\n", i+1)
-		fmt.Fprintf(&output, "%s %s\n", emojiTitle, scheduleTask.Title)
-		fmt.Fprintf(&output, "%s %s - %s \n", emojiTime, scheduleTask.Start.Format(layoutTime), scheduleTask.End.Format(layoutTime))
-		fmt.Fprintf(&output, "%s %s\n", emojiPlace, scheduleTask.Place)
-		fmt.Fprintf(&output, "%s %s\n\n", emojiSpeaker, scheduleTask.Speaker)
+		fmt.Fprintf(&output, "%s %s\n", utils.EmojiTitle, scheduleTask.Title)
+		fmt.Fprintf(&output, "%s %s - %s \n", utils.EmojiTime, scheduleTask.Start.Format(LayoutTime), scheduleTask.End.Format(LayoutTime))
+		fmt.Fprintf(&output, "%s %s\n", utils.EmojiPlace, scheduleTask.Place)
+		fmt.Fprintf(&output, "%s %s\n\n", utils.EmojiSpeaker, scheduleTask.Speaker)
 	}
 
 	return weekdaySchedule, output.String(), nil
 }
 
 func ClearAll(userId int) error {
-	_, err := utils.Delete(DefaultServiceUrl + fmt.Sprintf("%v/schedule/", userId))
+	_, err := utils.Delete(fmt.Sprintf("%s%v/schedule/", utils.DefaultServiceUrl, userId))
 	if err != nil {
 		return err
 	}

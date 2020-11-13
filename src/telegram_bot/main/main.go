@@ -53,9 +53,10 @@ func main() {
 	// В отдельном потоке проверяем fast_task'и.
 	go fast_task.CheckFastTasks(&bot)
 
-	// Храним состояния пользователей в бд.
+	// Храним состояния пользователей.
 	userStates := make(map[int]user.State)
 	err = user.GetStates(&userStates)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -450,7 +451,7 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите время начала дела. Например: 10:00AM\n"))
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите время начала дела. (например: 10:00)\n"))
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.SCHEDULE_ENTER_START, Request: string(b)})
@@ -462,7 +463,7 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				startTime, err := time.Parse(time.Kitchen, msg.Text)
+				startTime, err := time.Parse(schedule.LayoutTime, msg.Text)
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId, "Ой, кажется, вы ввели время не в подходящем формате. "+
 						"Попробуйте ещё раз"))
@@ -473,7 +474,7 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите время окончания дела. (например: 3:45PM)"))
+				bot.Send(tgbotapi.NewMessage(chatId, "Введите время окончания дела. (например: 19:00)"))
 
 				user.SetState(userId, userName, &userStates,
 					user.State{Code: user.SCHEDULE_ENTER_END, Request: string(b)})
@@ -484,12 +485,20 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				endTime, err := time.Parse(time.Kitchen, msg.Text)
+				endTime, err := time.Parse(schedule.LayoutTime, msg.Text)
 				if err != nil {
 					bot.Send(tgbotapi.NewMessage(chatId, "Ой, кажется, вы ввели время не в подходящем формате. "+
 						"Попробуйте ещё раз"))
 					continue
 				}
+
+				// Время конца дела должно быть после времени начала.
+				if !endTime.After(scheduleTask.Start) {
+					bot.Send(tgbotapi.NewMessage(chatId,
+						"Время окончания дела не может быть раньше времени его начала. Попробуйте ещё раз."))
+					continue
+				}
+
 				scheduleTask.End = endTime
 
 				err = schedule.AddScheduleTask(scheduleTask)

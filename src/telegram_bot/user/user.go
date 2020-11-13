@@ -9,10 +9,6 @@ import (
 	"todo_web_service/src/telegram_bot/utils"
 )
 
-const (
-	DefaultServiceUrl = "http://localhost:8080/"
-)
-
 type State struct {
 	Code    int    `json:"code"`
 	Request string `json:"request"`
@@ -30,7 +26,7 @@ func InitUser(userId int, userName string) error {
 	if err != nil {
 		return err
 	}
-	url := DefaultServiceUrl + "user/"
+	url := utils.DefaultServiceUrl + "user/"
 	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
 	if err != nil {
 		return err
@@ -42,7 +38,7 @@ func InitUser(userId int, userName string) error {
 func GetUser(userId int) (models.User, error) {
 	user := models.User{}
 
-	url := DefaultServiceUrl + fmt.Sprintf("user/%v", userId)
+	url := utils.DefaultServiceUrl + fmt.Sprintf("user/%v", userId)
 
 	resp, err := http.Get(url)
 	if err != nil {
@@ -55,8 +51,7 @@ func GetUser(userId int) (models.User, error) {
 }
 
 func GetStates(userStates *map[int]State) error {
-	url := DefaultServiceUrl + "user/"
-	resp, err := http.Get(url)
+	resp, err := http.Get(utils.DefaultServiceUrl + "user/")
 	if err != nil {
 		return err
 	}
@@ -81,14 +76,13 @@ func UpdateUser(userId int, username string, stateCode int, stateRequest string)
 		StateCode:    stateCode,
 		StateRequest: stateRequest,
 	}
-	url := DefaultServiceUrl + "user/{id}"
 
 	bytesRepr, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
 
-	_, err = utils.Put(url, bytes.NewBuffer(bytesRepr))
+	_, err = utils.Put(utils.DefaultServiceUrl+"user/{id}", bytes.NewBuffer(bytesRepr))
 	if err != nil {
 		return err
 	}

@@ -27,7 +27,6 @@ func main() {
 
 	r := mux.NewRouter()
 
-	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods(http.MethodGet)
 	// User.
 	r.HandleFunc("/user/", env.AddUserHandler).Methods(http.MethodPost)
 	r.HandleFunc("/user/", env.GetUsersHandler).Methods(http.MethodGet)
@@ -45,6 +44,8 @@ func main() {
 	r.HandleFunc("/{id}/schedule/{sch_id}/", env.DeleteScheduleTaskHandler).Methods(http.MethodDelete)
 	r.HandleFunc("/{id}/schedule/delete/{week_day}/", env.DeleteScheduleWeekHandler).Methods(http.MethodDelete)
 	r.HandleFunc("/{id}/schedule/", env.ClearAllHandler).Methods(http.MethodDelete)
+	// Suburban.
+	r.HandleFunc("/suburban", handlers.SuburbanHandler).Methods(http.MethodGet)
 
 	err = http.ListenAndServe(":8080", r)
 
