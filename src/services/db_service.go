@@ -28,6 +28,7 @@ type Datastore interface {
 	// Schedule.
 	AddScheduleTask(scheduleTask models.ScheduleTask) error
 	GetSchedule(assigneeId int, weekday time.Weekday) ([]models.ScheduleTask, error)
+	UpdateScheduleTask(scheduleTask models.ScheduleTask) error
 	DeleteScheduleTask(schId int) error
 	DeleteScheduleWeek(assigneeId int, weekday time.Weekday) error
 	ClearAll(assigneeId int) error

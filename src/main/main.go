@@ -41,6 +41,7 @@ func main() {
 	// Schedule.
 	r.HandleFunc("/{id}/schedule/", env.AddScheduleTaskHandler).Methods(http.MethodPost)
 	r.HandleFunc("/{id}/schedule/{week_day}/", env.GetScheduleTaskHandler).Methods(http.MethodGet)
+	r.HandleFunc("/{id}/schedule/", env.UpdateScheduleTaskHandler).Methods(http.MethodPut)
 	r.HandleFunc("/{id}/schedule/{sch_id}/", env.DeleteScheduleTaskHandler).Methods(http.MethodDelete)
 	r.HandleFunc("/{id}/schedule/delete/{week_day}/", env.DeleteScheduleWeekHandler).Methods(http.MethodDelete)
 	r.HandleFunc("/{id}/schedule/", env.ClearAllHandler).Methods(http.MethodDelete)

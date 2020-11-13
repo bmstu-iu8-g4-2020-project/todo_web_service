@@ -22,6 +22,7 @@ func StrToWeekday(strWeekday string) (time.Weekday, error) {
 	case "Saturday", "Суббота":
 		return time.Saturday, nil
 	case "Sunday", "Воскресенье":
+		return time.Sunday, nil
 	}
 
 	return 0, errors.New("the passed string is not a day of the week")
@@ -111,6 +112,17 @@ func (db *DataBase) GetSchedule(assigneeId int, weekday time.Weekday) ([]models.
 	}
 
 	return scheduleTasks, nil
+}
+
+func (db *DataBase) UpdateScheduleTask(scheduleTask models.ScheduleTask) error {
+	_, err := db.Exec("UPDATE schedule SET week_day = $1, title = $2, place = $3, speaker = $4, start_time = $5, end_time = $6  WHERE id = $7;",
+		scheduleTask.WeekDay.String(), scheduleTask.Title, scheduleTask.Place, scheduleTask.Speaker,
+		scheduleTask.Start, scheduleTask.End, scheduleTask.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *DataBase) ClearAll(assigneeId int) error {

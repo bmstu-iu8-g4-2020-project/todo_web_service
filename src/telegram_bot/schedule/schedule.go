@@ -45,6 +45,22 @@ func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 	return nil
 }
 
+func UpdateScheduleTask(scheduleTask models.ScheduleTask) error {
+	bytesRepr, err := json.Marshal(scheduleTask)
+	if err != nil {
+		return err
+	}
+	url := fmt.Sprintf("%s%v/schedule/", utils.DefaultServiceUrl, scheduleTask.AssigneeId)
+
+	_, err = utils.Put(url, bytes.NewBuffer(bytesRepr))
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask, string, error) {
 	url := fmt.Sprintf("%s%v/schedule/%s/", utils.DefaultServiceUrl, userId, weekday.String())
 

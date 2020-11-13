@@ -68,6 +68,23 @@ func (env *Environment) GetScheduleTaskHandler(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusOK)
 }
 
+func (env *Environment) UpdateScheduleTaskHandler(w http.ResponseWriter, r *http.Request) {
+	var scheduleTask models.ScheduleTask
+	err := json.NewDecoder(r.Body).Decode(&scheduleTask)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	err = env.Db.UpdateScheduleTask(scheduleTask)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func (env *Environment) ClearAllHandler(w http.ResponseWriter, r *http.Request) {
 	assigneeId, err := ValidateUserId(mux.Vars(r)["id"])
 	if err != nil {
