@@ -16,12 +16,26 @@ type Environment struct {
 	Db services.Datastore
 }
 
-func ValidateUserId(userIdStr string) (int, error) {
-	err := validation.Validate(userIdStr, validation.Required, is.Int, validation.Length(6, 10))
+func ValidateId(strId string) (int, error) {
+	err := validation.Validate(strId, validation.Required, is.Int)
 	if err != nil {
 		return 0, err
 	}
-	userId, err := strconv.Atoi(userIdStr)
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func ValidateUserId(strUserId string) (int, error) {
+	userId, err := ValidateId(strUserId)
+	if err != nil {
+		return 0, err
+	}
+
+	err = validation.Validate(strUserId, validation.Length(6, 10))
 	if err != nil {
 		return 0, err
 	}
@@ -39,9 +53,11 @@ func (env *Environment) AddUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = env.Db.AddUser(user)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
 }
 
 func (env *Environment) GetUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,11 +69,13 @@ func (env *Environment) GetUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	user, err := env.Db.GetUser(userId)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	json.NewEncoder(w).Encode(user)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) UpdateUserStateHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,17 +87,21 @@ func (env *Environment) UpdateUserStateHandler(w http.ResponseWriter, r *http.Re
 	}
 	err = env.Db.UpdateState(user)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) GetUsersHandler(w http.ResponseWriter, r *http.Request) {
 	users, err := env.Db.GetUsers()
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	json.NewEncoder(w).Encode(users)
+
+	w.WriteHeader(http.StatusOK)
 }

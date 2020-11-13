@@ -2,26 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 	"todo_web_service/src/models"
 )
-
-func ValidateFastTaskId(ftIdStr string) (int, error) {
-	err := validation.Validate(ftIdStr, validation.Required, is.Int, validation.Min(0))
-	if err != nil {
-		return 0, err
-	}
-	schId, err := strconv.Atoi(ftIdStr)
-	if err != nil {
-		return 0, err
-	}
-
-	return schId, nil
-}
 
 func (env *Environment) AddFastTaskHandler(w http.ResponseWriter, r *http.Request) {
 	fastTask := models.FastTask{}
@@ -33,9 +17,11 @@ func (env *Environment) AddFastTaskHandler(w http.ResponseWriter, r *http.Reques
 
 	err = env.Db.AddFastTask(fastTask)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) GetAllFastTasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +32,8 @@ func (env *Environment) GetAllFastTasksHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	json.NewEncoder(w).Encode(fastTasks)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,11 +47,13 @@ func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Reque
 
 	fastTasks, err := env.Db.GetFastTasks(assigneeId)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
 		return
 	}
 
 	json.NewEncoder(w).Encode(fastTasks)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) UpdateFastTasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,15 +67,16 @@ func (env *Environment) UpdateFastTasksHandler(w http.ResponseWriter, r *http.Re
 	err = env.Db.UpdateFastTasks(fastTasks)
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotModified)
+		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) DeleteFastTaskHandler(w http.ResponseWriter, r *http.Request) {
 	paramFromURL := mux.Vars(r)
-	// TODO: удаление не работает, чот криво валидируется.
-	ftId, err := ValidateFastTaskId(paramFromURL["ft_id"])
+	ftId, err := ValidateId(paramFromURL["ft_id"])
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -94,7 +85,9 @@ func (env *Environment) DeleteFastTaskHandler(w http.ResponseWriter, r *http.Req
 	err = env.Db.DeleteFastTask(ftId)
 
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }

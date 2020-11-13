@@ -3,27 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 	"time"
 	"todo_web_service/src/models"
 	"todo_web_service/src/services"
 )
-
-func ValidateScheduleId(schIdStr string) (int, error) {
-	err := validation.Validate(schIdStr, validation.Required, is.Int, validation.Min(0))
-	if err != nil {
-		return 0, err
-	}
-	schId, err := strconv.Atoi(schIdStr)
-	if err != nil {
-		return 0, err
-	}
-
-	return schId, nil
-}
 
 func ValidateWeekday(weekday string) (time.Weekday, error) {
 	err := validation.Validate(weekday, validation.Required,
@@ -53,6 +38,8 @@ func (env *Environment) AddScheduleTaskHandler(w http.ResponseWriter, r *http.Re
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) GetScheduleTaskHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +64,8 @@ func (env *Environment) GetScheduleTaskHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	json.NewEncoder(w).Encode(scheduleTasks)
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) ClearAllHandler(w http.ResponseWriter, r *http.Request) {
@@ -91,10 +80,12 @@ func (env *Environment) ClearAllHandler(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) DeleteScheduleTaskHandler(w http.ResponseWriter, r *http.Request) {
-	schId, err := ValidateScheduleId(mux.Vars(r)["sch_id"])
+	schId, err := ValidateId(mux.Vars(r)["sch_id"])
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -104,6 +95,8 @@ func (env *Environment) DeleteScheduleTaskHandler(w http.ResponseWriter, r *http
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) DeleteScheduleWeekHandler(w http.ResponseWriter, r *http.Request) {
@@ -125,4 +118,6 @@ func (env *Environment) DeleteScheduleWeekHandler(w http.ResponseWriter, r *http
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }

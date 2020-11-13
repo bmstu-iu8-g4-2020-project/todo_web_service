@@ -42,6 +42,7 @@ func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 	url := DefaultServiceUrl + fmt.Sprintf("%v/schedule/", scheduleTask.AssigneeId)
 
 	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
+
 	if err != nil {
 		return err
 	}

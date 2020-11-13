@@ -9,34 +9,19 @@ import (
 
 func StrToWeekday(strWeekday string) (time.Weekday, error) {
 	switch strWeekday {
-	case "Monday":
+	case "Monday", "Понедельник":
 		return time.Monday, nil
-	case "Понедельник":
-		return time.Monday, nil
-	case "Tuesday":
+	case "Tuesday", "Вторник":
 		return time.Tuesday, nil
-	case "Вторник":
-		return time.Tuesday, nil
-	case "Wednesday":
+	case "Wednesday", "Среда":
 		return time.Wednesday, nil
-	case "Среда":
-		return time.Wednesday, nil
-	case "Thursday":
+	case "Thursday", "Четверг":
 		return time.Thursday, nil
-	case "Четверг":
-		return time.Thursday, nil
-	case "Friday":
+	case "Friday", "Пятница":
 		return time.Friday, nil
-	case "Пятница":
-		return time.Friday, nil
-	case "Saturday":
+	case "Saturday", "Суббота":
 		return time.Saturday, nil
-	case "Суббота":
-		return time.Saturday, nil
-	case "Sunday":
-		return time.Sunday, nil
-	case "Воскресенье":
-		return time.Sunday, nil
+	case "Sunday", "Воскресенье":
 	}
 
 	return 0, errors.New("the passed string is not a day of the week")
@@ -58,8 +43,9 @@ func StateCodeToWeekDay(stateCode int) time.Weekday {
 		return time.Saturday
 	case user.SCHEDULE_FILL_SUN:
 		return time.Sunday
+	default:
+		return 0
 	}
-	return 0
 }
 
 func WeekdayToStr(weekday time.Weekday) string {
@@ -78,9 +64,9 @@ func WeekdayToStr(weekday time.Weekday) string {
 		return "Суббота"
 	case time.Sunday:
 		return "Воскресенье"
+	default:
+		return ""
 	}
-
-	return ""
 }
 
 func (db *DataBase) AddScheduleTask(scheduleTask models.ScheduleTask) error {
