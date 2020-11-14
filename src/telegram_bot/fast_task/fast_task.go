@@ -21,7 +21,10 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		json.NewDecoder(resp.Body).Decode(&allFastTasks)
+		err = json.NewDecoder(resp.Body).Decode(&allFastTasks)
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		var batch []models.FastTask // Создаём батч для обновления нескольких дедлайнов.
 		for _, currTask := range allFastTasks {
@@ -29,7 +32,7 @@ func CheckFastTasks(bot **tgbotapi.BotAPI) {
 			// и обновляем время следующего дедлайна.
 			if time.Now().After(currTask.Deadline) {
 				// Отсылаем напоминание пользователю.
-				(*bot).Send(tgbotapi.NewMessage(currTask.ChatId,
+				_, _ = (*bot).Send(tgbotapi.NewMessage(currTask.ChatId,
 					fmt.Sprintf("%s Напоминание: \n%s", utils.EmojiAttention, currTask.TaskName)))
 				// Добавляем задачу в батч.
 				batch = append(batch, currTask)
@@ -60,7 +63,10 @@ func OutputFastTasks(assigneeId int) ([]models.FastTask, string, error) {
 		return []models.FastTask{}, "", err
 	}
 
-	json.NewDecoder(resp.Body).Decode(&fastTasks)
+	err = json.NewDecoder(resp.Body).Decode(&fastTasks)
+	if err != nil {
+		return nil, "", err
+	}
 
 	var output string
 

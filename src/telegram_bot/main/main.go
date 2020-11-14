@@ -34,28 +34,27 @@ func main() {
 	}
 
 	bot.Debug = true
-	log.Printf("Authorized on account %s", bot.Self.UserName)
+	log.Printf("Authorized on account %s (@%s)", bot.Self.FirstName, bot.Self.UserName)
 
-	// инициализируем канал, куда будут прилетать обновления от API
+	// Инициализируем канал, куда будут прилетать обновления от API
 	var userConfig = tgbotapi.NewUpdate(0)
-
 	userConfig.Timeout = 60
 	updates, err := bot.GetUpdatesChan(userConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	// В отдельном потоке проверяем fast_task'и.
+	// В отдельном потоке проверяем, прошли ли дедлайны fast_task'ов.
 	go fast_task.CheckFastTasks(&bot)
 
 	// Храним состояния пользователей.
 	userStates := make(map[int]user.State)
 	err = user.GetStates(&userStates)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-	// читаем обновления из канала
+
+	// Читаем обновления из канала
 	for update := range updates {
 		chatId := update.Message.Chat.ID
 		userId := update.Message.From.ID
@@ -69,19 +68,20 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("Здравствуйте, %s.\nДобро пожаловать!", userName)))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					fmt.Sprintf("Здравствуйте, %s.\nДобро пожаловать!", userName)))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "userinfo":
 			if user.IsStartState(userStateCode) {
-				user, err := user.GetUser(userId)
+				respUser, err := user.GetUser(userId)
 				if err != nil {
 					log.Fatal(err)
 				}
-				bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("Здравствуйте, %s. \nВаш 🆔: %s",
-					user.UserName, strconv.Itoa(user.Id))))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("Здравствуйте, %s. \nВаш 🆔: %s",
+					respUser.UserName, strconv.Itoa(respUser.Id))))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -95,7 +95,7 @@ func main() {
 
 				body, _ := ioutil.ReadAll(resp.Body)
 
-				bot.Send(tgbotapi.NewMessage(chatId, string(body)))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -103,8 +103,8 @@ func main() {
 		case "add_fast_task":
 			if user.IsStartState(userStateCode) {
 				state := user.State{Code: user.FAST_TASK_ENTER_TITLE, Request: "{}"}
-				user.SetState(userId, userName, &userStates, state)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название нового задания."))
+				_ = user.SetState(userId, userName, &userStates, state)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название нового задания."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -116,28 +116,29 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-				bot.Send(tgbotapi.NewMessage(chatId, reply))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, reply))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "delete_fast_task":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId,
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
 					"Какая из этих задач уже выполнена? (введите её порядковый номер)"))
 				_, output, err := fast_task.OutputFastTasks(userId)
 				if err != nil {
 					log.Fatal(err)
 				}
-				bot.Send(tgbotapi.NewMessage(chatId, output))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.FAST_TASK_DELETE_ENTER_NUM, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, output))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.FAST_TASK_DELETE_ENTER_NUM, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "fill_schedule":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "Выберете день недели, куда вы хотели юы добавить дело:\n"+
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Выберете день недели, куда вы хотели бы добавить дело:\n"+
 					"Понедельник /add_to_mon \nВторник /add_to_tue \nСреда /add_to_wed "+
 					"\nЧетверг /add_to_thu \nПятница /add_to_fri \nСуббота /add_to_sat \nВоскресенье /add_to_sun"))
 			} else {
@@ -157,7 +158,7 @@ func main() {
 					log.Fatal(err)
 				}
 
-				bot.Send(tgbotapi.NewMessage(chatId, output))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, output))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -169,129 +170,134 @@ func main() {
 					log.Fatal(err)
 				}
 
-				bot.Send(tgbotapi.NewMessage(chatId, output))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, output))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "weekday_schedule":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_ENTER_OUTPUT_WEEKDAY, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "На какой день недели вы хотите увидеть расписание?"))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.SCHEDULE_ENTER_OUTPUT_WEEKDAY, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "delete_schedule":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId,
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
 					"Если вы хотите очистить расписание на всю неделю, используйте /clear_schedule"))
-				bot.Send(tgbotapi.NewMessage(chatId,
-					"Если вам необходимо очистить расписание на конкретный день недели, используйте \n/delete_weekday_schedule"))
-				bot.Send(tgbotapi.NewMessage(chatId,
-					"Если вам просто нужно удалить какую-то задачу на конкретный день недели, используйте \n/delete_schedule_task"))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Если вам необходимо очистить расписание на конкретный день недели, используйте "+
+						"\n/delete_weekday_schedule"))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Если вам просто нужно удалить какую-то задачу на конкретный день недели, используйте "+
+						"\n/delete_schedule_task"))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_mon":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_MON)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_MON)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_tue":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_TUE)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_TUE)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_wed":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_WED)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_WED)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_thu":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_THU)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_THU)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_fri":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_FRI)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_FRI)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_sat":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SAT)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SAT)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "add_to_sun":
 			if user.IsStartState(userStateCode) {
-				schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SUN)
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
+				_ = schedule.AddToWeekday(userId, userName, &userStates, user.SCHEDULE_FILL_SUN)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите название дела."))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "update_schedule_task":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно обновить задачу."))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_UPDATE_ENTER_WEEKDAY, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно обновить задачу."))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.SCHEDULE_UPDATE_ENTER_WEEKDAY, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "delete_schedule_task":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно удалить задачу."))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_WEEKDAY_TASK, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Введите день недели, в котором нужно удалить задачу."))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.SCHEDULE_DELETE_WEEKDAY_TASK, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "clear_schedule":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "Вы точно хотите ПОЛНОСТЬЮ очистить ваше текущее расписание? Да или нет?"))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Вы точно хотите ПОЛНОСТЬЮ очистить ваше текущее расписание? Да или нет?"))
+				_ = user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "delete_weekday_schedule":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "Расписание на какой день недели вы хотите очистить?"))
-				user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_WEEKDAY, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Расписание на какой день недели вы хотите очистить?"))
+				_ = user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_WEEKDAY, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "reset":
-			user.ResetState(userId, userName, &userStates)
-			bot.Send(tgbotapi.NewMessage(chatId, "Ввод данных прерван."))
+			_ = user.ResetState(userId, userName, &userStates)
+			_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Ввод данных прерван."))
 			continue
 		}
 
 		// Если состояние пользователя не начальное.
-		if userStateCode != user.START {
-			/* FastTask */
+		if !user.IsStartState(userStateCode) {
 			switch userStateCode {
+			/* Fast Task */
 			case user.FAST_TASK_ENTER_TITLE:
 				fast_task.EnterTitle(&update, &bot, &userStates)
 			case user.FAST_TASK_ENTER_INTERVAL:

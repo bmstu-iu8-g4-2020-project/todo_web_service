@@ -40,7 +40,10 @@ func GetUser(userId int) (models.User, error) {
 		return models.User{}, err
 	}
 
-	json.NewDecoder(resp.Body).Decode(&user)
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	if err != nil {
+		return models.User{}, err
+	}
 
 	return user, nil
 }

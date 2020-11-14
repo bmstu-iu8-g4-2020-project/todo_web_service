@@ -63,7 +63,11 @@ func (env *Environment) GetScheduleTaskHandler(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	json.NewEncoder(w).Encode(scheduleTasks)
+	err = json.NewEncoder(w).Encode(scheduleTasks)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusOK)
 }

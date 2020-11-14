@@ -24,16 +24,19 @@ func (env *Environment) AddFastTaskHandler(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 }
 
-func (env *Environment) GetAllFastTasksHandler(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetAllFastTasksHandler(w http.ResponseWriter, _ *http.Request) {
 	fastTasks, err := env.Db.GetAllFastTasks()
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(fastTasks)
+	err = json.NewEncoder(w).Encode(fastTasks)
 
-	w.WriteHeader(http.StatusOK)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
 func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +54,14 @@ func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	json.NewEncoder(w).Encode(fastTasks)
+	err = json.NewEncoder(w).Encode(fastTasks)
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) UpdateFastTasksHandler(w http.ResponseWriter, r *http.Request) {
