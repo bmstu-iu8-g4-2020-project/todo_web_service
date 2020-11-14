@@ -31,6 +31,14 @@ func AddToWeekday(userId int, userName string, userStates *map[int]user.State, s
 	return nil
 }
 
+func NextWeekday(weekday time.Weekday) time.Weekday {
+	if weekday == time.Saturday {
+		return time.Sunday
+	}
+
+	return weekday + 1
+}
+
 func AddScheduleTask(scheduleTask models.ScheduleTask) error {
 	bytesRepr, err := json.Marshal(scheduleTask)
 	if err != nil {
