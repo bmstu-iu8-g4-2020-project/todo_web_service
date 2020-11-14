@@ -14,7 +14,7 @@ import (
 	"todo_web_service/src/telegram_bot/utils"
 )
 
-func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -26,7 +26,7 @@ func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 	if update.Message.Text == "" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы отправили не текстовое сообщение. Введите название задания."))
-		return false
+		return
 	}
 
 	scheduleTask.Title = update.Message.Text
@@ -38,11 +38,9 @@ func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_ENTER_PLACE, Request: string(b)})
-
-	return true
 }
 
-func EnterPlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterPlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -54,7 +52,7 @@ func EnterPlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 	if update.Message.Text == "" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы отправили не текстовое сообщение. Введите место проведения."))
-		return false
+		return
 	}
 
 	scheduleTask.Place = update.Message.Text
@@ -66,11 +64,9 @@ func EnterPlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_ENTER_SPEAKER, Request: string(b)})
-
-	return true
 }
 
-func EnterSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -82,7 +78,7 @@ func EnterSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *ma
 	if update.Message.Text == "" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы отправили не текстовое сообщение. Введите имя спикера."))
-		return false
+		return
 	}
 
 	scheduleTask.Speaker = update.Message.Text
@@ -94,11 +90,9 @@ func EnterSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *ma
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_ENTER_START, Request: string(b)})
-
-	return true
 }
 
-func EnterStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -110,7 +104,7 @@ func EnterStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ой, кажется, вы ввели время не в подходящем формате. "+
 			"Попробуйте ещё раз"))
-		return false
+		return
 	}
 	scheduleTask.Start = startTime
 	b, err := json.Marshal(scheduleTask)
@@ -121,11 +115,9 @@ func EnterStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_ENTER_END, Request: string(b)})
-
-	return true
 }
 
-func EnterEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 
 	err := json.Unmarshal([]byte((*userStates)[update.Message.From.ID].Request), &scheduleTask)
@@ -136,14 +128,14 @@ func EnterEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[in
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ой, кажется, вы ввели время не в подходящем формате. "+
 			"Попробуйте ещё раз"))
-		return false
+		return
 	}
 
 	// Время конца дела должно быть после времени начала.
 	if !endTime.After(scheduleTask.Start) {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Время окончания дела не может быть раньше времени его начала. Попробуйте ещё раз."))
-		return false
+		return
 	}
 
 	scheduleTask.End = endTime
@@ -157,15 +149,13 @@ func EnterEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[in
 		services.WeekdayToStr(scheduleTask.WeekDay))))
 
 	user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
-
-	return true
 }
 
-func EnterOutputWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterOutputWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	weekday, err := services.StrToWeekday(strings.Title(update.Message.Text))
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Нет-нет. Введите день недели. (например: Понедельник)"))
-		return false
+		return
 	}
 
 	_, output, err := GetWeekdaySchedule(update.Message.From.ID, weekday)
@@ -176,11 +166,9 @@ func EnterOutputWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, output))
 
 	user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
-
-	return true
 }
 
-func EnterClearAll(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterClearAll(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	if strings.ToLower(update.Message.Text) == "да" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ок, очищаю ваше расписание..."))
 		err := ClearAll(update.Message.From.ID)
@@ -195,17 +183,14 @@ func EnterClearAll(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *m
 		user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
 	} else {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ответ не понятен, введите да, либо нет."))
-		return false
 	}
-
-	return true
 }
 
-func EnterDeleteWeekdayTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterDeleteWeekdayTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	weekday, err := services.StrToWeekday(strings.Title(update.Message.Text))
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Нет-нет. Введите день недели. (например: Понедельник)"))
-		return false
+		return
 	}
 
 	weekdaySchedule, output, err := GetWeekdaySchedule(update.Message.From.ID, weekday)
@@ -218,7 +203,7 @@ func EnterDeleteWeekdayTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, user
 				strings.ToLower(update.Message.Text))))
 		user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
 
-		return true
+		return
 	}
 	b, err := json.Marshal(weekdaySchedule)
 	if err != nil {
@@ -229,11 +214,9 @@ func EnterDeleteWeekdayTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, user
 	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Итак, теперь введите номер задачи, которую вы желаете удалить."))
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates, user.State{Code: user.SCHEDULE_DELETE_NUM_TASK, Request: string(b)})
-
-	return true
 }
 
-func EnterDeleteNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterDeleteNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTasks []models.ScheduleTask
 
 	err := json.Unmarshal([]byte((*userStates)[update.Message.From.ID].Request), &scheduleTasks)
@@ -246,13 +229,13 @@ func EnterDeleteNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы ввели не число. Введите номер задания, который хотите удалить."))
-		return false
+		return
 	}
 
 	if num <= 0 || num > len(scheduleTasks) {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, такого дела не существует. Введите номер задания, который хотите удалить."))
-		return false
+		return
 	}
 
 	_, err = utils.Delete(fmt.Sprintf("%s%v/schedule/%v/", utils.DefaultServiceUrl, update.Message.From.ID, scheduleTasks[num-1].Id))
@@ -267,15 +250,13 @@ func EnterDeleteNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, output))
 
 	user.ResetState(update.Message.From.ID, update.Message.Chat.UserName, userStates)
-
-	return true
 }
 
-func EnterDeleteWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterDeleteWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	weekday, err := services.StrToWeekday(strings.Title(update.Message.Text))
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Нет-нет. Введите день недели. (например: Понедельник)"))
-		return false
+		return
 	}
 
 	scheduleTasks, _, err := GetWeekdaySchedule(update.Message.From.ID, weekday)
@@ -285,7 +266,7 @@ func EnterDeleteWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	if scheduleTasks == nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Кажется, текущий день недели итак пуст.\n"+
 			"Введите другой день недели, либо прервите ввод -- /reset"))
-		return false
+		return
 	}
 
 	_, err = utils.Delete(fmt.Sprintf("%s%v/schedule/delete/%s/",
@@ -298,15 +279,13 @@ func EnterDeleteWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 		services.WeekdayToStr(weekday))))
 
 	user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
-
-	return true
 }
 
-func EnterUpdateWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdateWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	weekday, err := services.StrToWeekday(strings.Title(update.Message.Text))
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Нет-нет. Введите день недели. (например: Понедельник)"))
-		return false
+		return
 	}
 
 	weekdaySchedule, output, err := GetWeekdaySchedule(update.Message.From.ID, weekday)
@@ -328,11 +307,9 @@ func EnterUpdateWeekday(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Итак, теперь введите номер задачи, которую вы желаете обновить."))
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates, user.State{Code: user.SCHEDULE_UPDATE_ENTER_NUM_TASK, Request: string(b)})
-
-	return true
 }
 
-func EnterUpdateNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdateNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTasks []models.ScheduleTask
 	err := json.Unmarshal([]byte((*userStates)[update.Message.From.ID].Request), &scheduleTasks)
 	if err != nil {
@@ -343,13 +320,13 @@ func EnterUpdateNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы ввели не число. Введите номер задания, который хотите удалить."))
-		return false
+		return
 	}
 
 	if num <= 0 || num > len(scheduleTasks) {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, такого дела не существует. Введите номер задания, который хотите удалить."))
-		return false
+		return
 	}
 	b, err := json.Marshal(scheduleTasks[num-1])
 	if err != nil {
@@ -359,11 +336,9 @@ func EnterUpdateNumTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ок. Введите новое название дела."))
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates, user.State{Code: user.SCHEDULE_UPDATE_ENTER_TITLE, Request: string(b)})
-
-	return true
 }
 
-func EnterUpdateTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdateTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -375,7 +350,7 @@ func EnterUpdateTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates
 	if update.Message.Text == "" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы отправили не текстовое сообщение. Введите название задания."))
-		return false
+		return
 	}
 
 	scheduleTask.Title = update.Message.Text
@@ -387,11 +362,9 @@ func EnterUpdateTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_UPDATE_ENTER_PLACE, Request: string(b)})
-
-	return true
 }
 
-func EnterUpdatePlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdatePlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -403,7 +376,7 @@ func EnterUpdatePlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates
 	if update.Message.Text == "" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы отправили не текстовое сообщение. Введите место проведения."))
-		return false
+		return
 	}
 
 	scheduleTask.Place = update.Message.Text
@@ -415,11 +388,9 @@ func EnterUpdatePlace(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_UPDATE_ENTER_SPEAKER, Request: string(b)})
-
-	return true
 }
 
-func EnterUpdateSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdateSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -431,7 +402,7 @@ func EnterUpdateSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 	if update.Message.Text == "" {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Кажется, вы отправили не текстовое сообщение. Введите имя спикера."))
-		return false
+		return
 	}
 
 	scheduleTask.Speaker = update.Message.Text
@@ -443,11 +414,9 @@ func EnterUpdateSpeaker(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStat
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_UPDATE_ENTER_START, Request: string(b)})
-
-	return true
 }
 
-func EnterUpdateStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdateStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)
 
@@ -459,7 +428,7 @@ func EnterUpdateStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Ой, кажется, вы ввели время не в подходящем формате. Попробуйте ещё раз"))
-		return false
+		return
 	}
 	scheduleTask.Start = startTime
 	b, err := json.Marshal(scheduleTask)
@@ -471,11 +440,9 @@ func EnterUpdateStart(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
 		user.State{Code: user.SCHEDULE_UPDATE_ENTER_END, Request: string(b)})
-
-	return true
 }
 
-func EnterUpdateEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) bool {
+func EnterUpdateEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 
 	err := json.Unmarshal([]byte((*userStates)[update.Message.From.ID].Request), &scheduleTask)
@@ -486,14 +453,14 @@ func EnterUpdateEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *
 	if err != nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Ой, кажется, вы ввели время не в подходящем формате. "+
 			"Попробуйте ещё раз"))
-		return false
+		return
 	}
 
 	// Время конца дела должно быть после времени начала.
 	if !endTime.After(scheduleTask.Start) {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
 			"Время окончания дела не может быть раньше времени его начала. Попробуйте ещё раз."))
-		return false
+		return
 	}
 
 	scheduleTask.End = endTime
@@ -507,6 +474,4 @@ func EnterUpdateEnd(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *
 		services.WeekdayToStr(scheduleTask.WeekDay))))
 
 	user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
-
-	return true
 }

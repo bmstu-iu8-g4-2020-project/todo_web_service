@@ -293,86 +293,46 @@ func main() {
 			/* FastTask */
 			switch userStateCode {
 			case user.FAST_TASK_ENTER_TITLE:
-				if !fast_task.EnterTitle(&update, &bot, &userStates) {
-					continue
-				}
+				fast_task.EnterTitle(&update, &bot, &userStates)
 			case user.FAST_TASK_ENTER_INTERVAL:
-				if !fast_task.EnterInterval(&update, &bot, &userStates) {
-					continue
-				}
+				fast_task.EnterInterval(&update, &bot, &userStates)
 			case user.FAST_TASK_DELETE_ENTER_NUM:
-				if !fast_task.EnterDeleteNum(&update, &bot, &userStates) {
-					continue
-				}
+				fast_task.EnterDeleteNum(&update, &bot, &userStates)
 				/* Schedule */
 			case user.SCHEDULE_ENTER_TITLE:
-				if !schedule.EnterTitle(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterTitle(&update, &bot, &userStates)
 			case user.SCHEDULE_ENTER_PLACE:
-				if !schedule.EnterPlace(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterPlace(&update, &bot, &userStates)
 			case user.SCHEDULE_ENTER_SPEAKER:
-				if !schedule.EnterSpeaker(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterSpeaker(&update, &bot, &userStates)
 			case user.SCHEDULE_ENTER_START:
-				if !schedule.EnterStart(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterStart(&update, &bot, &userStates)
 			case user.SCHEDULE_ENTER_END:
-				if !schedule.EnterEnd(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterEnd(&update, &bot, &userStates)
 			case user.SCHEDULE_ENTER_OUTPUT_WEEKDAY:
-				if !schedule.EnterOutputWeekday(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterOutputWeekday(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_WEEKDAY:
-				if !schedule.EnterUpdateWeekday(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdateWeekday(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_NUM_TASK:
-				if !schedule.EnterUpdateNumTask(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdateNumTask(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_TITLE:
-				if !schedule.EnterUpdateTitle(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdateTitle(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_PLACE:
-				if !schedule.EnterUpdatePlace(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdatePlace(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_SPEAKER:
-				if !schedule.EnterUpdateSpeaker(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdateSpeaker(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_START:
-				if !schedule.EnterUpdateStart(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdateStart(&update, &bot, &userStates)
 			case user.SCHEDULE_UPDATE_ENTER_END:
-				if !schedule.EnterUpdateEnd(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterUpdateEnd(&update, &bot, &userStates)
 			case user.SCHEDULE_DELETE_CLEARALL:
-				if !schedule.EnterClearAll(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterClearAll(&update, &bot, &userStates)
 			case user.SCHEDULE_DELETE_WEEKDAY_TASK:
-				if !schedule.EnterDeleteWeekdayTask(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterDeleteWeekdayTask(&update, &bot, &userStates)
 			case user.SCHEDULE_DELETE_NUM_TASK:
-				if !schedule.EnterDeleteNumTask(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterDeleteNumTask(&update, &bot, &userStates)
 			case user.SCHEDULE_DELETE_WEEKDAY:
-				if !schedule.EnterDeleteWeekday(&update, &bot, &userStates) {
-					continue
-				}
+				schedule.EnterDeleteWeekday(&update, &bot, &userStates)
 			}
 		}
 	}
