@@ -52,8 +52,6 @@ func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	json.NewEncoder(w).Encode(fastTasks)
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func (env *Environment) UpdateFastTasksHandler(w http.ResponseWriter, r *http.Request) {
