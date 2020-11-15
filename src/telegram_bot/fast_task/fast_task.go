@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-	"todo_web_service/src/models"
-	"todo_web_service/src/telegram_bot/utils"
 
 	"github.com/Syfaro/telegram-bot-api"
+
+	"todo_web_service/src/models"
+	"todo_web_service/src/telegram_bot/utils"
 )
 
 func CheckFastTasks(bot **tgbotapi.BotAPI) {

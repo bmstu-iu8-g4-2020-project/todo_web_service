@@ -2,8 +2,10 @@ package user
 
 import (
 	"encoding/json"
-	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	"net/http"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+
 	"todo_web_service/src/models"
 	"todo_web_service/src/telegram_bot/utils"
 )

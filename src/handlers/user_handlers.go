@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/gorilla/mux"
-	"net/http"
-	"strconv"
 
 	"todo_web_service/src/models"
 	"todo_web_service/src/services"

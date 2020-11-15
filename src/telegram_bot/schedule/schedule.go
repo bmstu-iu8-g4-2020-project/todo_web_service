@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	"log"
 	"net/http"
 	"sort"
 	"strings"
 	"time"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+
 	"todo_web_service/src/models"
 	"todo_web_service/src/services"
 	"todo_web_service/src/telegram_bot/user"

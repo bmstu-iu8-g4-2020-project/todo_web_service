@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
+
 	"todo_web_service/src/models"
 )
 
@@ -50,7 +52,7 @@ func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Reque
 
 	fastTasks, err := env.Db.GetFastTasks(assigneeId)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 

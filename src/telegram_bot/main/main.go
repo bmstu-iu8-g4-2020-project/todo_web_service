@@ -8,12 +8,13 @@ import (
 	"os"
 	"strconv"
 	"time"
-	"todo_web_service/src/telegram_bot/schedule"
-	"todo_web_service/src/telegram_bot/utils"
 
 	"github.com/Syfaro/telegram-bot-api"
+
 	"todo_web_service/src/telegram_bot/fast_task"
+	"todo_web_service/src/telegram_bot/schedule"
 	"todo_web_service/src/telegram_bot/user"
+	"todo_web_service/src/telegram_bot/utils"
 )
 
 const (

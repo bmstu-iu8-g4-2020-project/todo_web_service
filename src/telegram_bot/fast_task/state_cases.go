@@ -3,10 +3,12 @@ package fast_task
 import (
 	"encoding/json"
 	"fmt"
-	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	"log"
 	"strconv"
 	"time"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+
 	"todo_web_service/src/models"
 	"todo_web_service/src/telegram_bot/user"
 	"todo_web_service/src/telegram_bot/utils"
