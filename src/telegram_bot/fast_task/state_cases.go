@@ -12,6 +12,12 @@ import (
 	"todo_web_service/src/telegram_bot/utils"
 )
 
+func FillFastTaskFuncs(stateFuncDict *map[int]user.StateFunc) {
+	(*stateFuncDict)[user.FAST_TASK_ENTER_TITLE] = EnterTitle
+	(*stateFuncDict)[user.FAST_TASK_ENTER_INTERVAL] = EnterInterval
+	(*stateFuncDict)[user.FAST_TASK_DELETE_ENTER_NUM] = EnterDeleteNum
+}
+
 func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var fastTask models.FastTask
 	if update.Message.Text == "" {

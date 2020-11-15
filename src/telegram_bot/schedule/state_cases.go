@@ -14,6 +14,26 @@ import (
 	"todo_web_service/src/telegram_bot/utils"
 )
 
+func FillScheduleFuncs(stateFuncDict *map[int]user.StateFunc) {
+	(*stateFuncDict)[user.SCHEDULE_ENTER_TITLE] = EnterTitle
+	(*stateFuncDict)[user.SCHEDULE_ENTER_PLACE] = EnterPlace
+	(*stateFuncDict)[user.SCHEDULE_ENTER_SPEAKER] = EnterSpeaker
+	(*stateFuncDict)[user.SCHEDULE_ENTER_START] = EnterStart
+	(*stateFuncDict)[user.SCHEDULE_ENTER_END] = EnterEnd
+	(*stateFuncDict)[user.SCHEDULE_ENTER_OUTPUT_WEEKDAY] = EnterOutputWeekday
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_WEEKDAY] = EnterUpdateWeekday
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_NUM_TASK] = EnterUpdateNumTask
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_TITLE] = EnterUpdateTitle
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_PLACE] = EnterUpdatePlace
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_SPEAKER] = EnterUpdateSpeaker
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_START] = EnterUpdateStart
+	(*stateFuncDict)[user.SCHEDULE_UPDATE_ENTER_END] = EnterUpdateEnd
+	(*stateFuncDict)[user.SCHEDULE_DELETE_CLEARALL] = EnterClearAll
+	(*stateFuncDict)[user.SCHEDULE_DELETE_WEEKDAY_TASK] = EnterDeleteWeekdayTask
+	(*stateFuncDict)[user.SCHEDULE_DELETE_NUM_TASK] = EnterDeleteNumTask
+	(*stateFuncDict)[user.SCHEDULE_DELETE_WEEKDAY] = EnterDeleteWeekday
+}
+
 func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var scheduleTask models.ScheduleTask
 	data := []byte((*userStates)[update.Message.From.ID].Request)

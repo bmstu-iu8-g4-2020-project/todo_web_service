@@ -46,6 +46,8 @@ type State struct {
 	Request string `json:"request"`
 }
 
+type StateFunc func(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]State)
+
 func IsStartState(stateCode int) bool {
 	return stateCode == START
 }

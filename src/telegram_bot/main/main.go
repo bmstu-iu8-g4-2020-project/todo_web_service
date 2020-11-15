@@ -54,6 +54,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	stateFuncDict := make(map[int]user.StateFunc)
+	fast_task.FillFastTaskFuncs(&stateFuncDict)
+	schedule.FillScheduleFuncs(&stateFuncDict)
+
 	// Читаем обновления из канала
 	for update := range updates {
 		chatId := update.Message.Chat.ID
@@ -296,50 +300,7 @@ func main() {
 
 		// Если состояние пользователя не начальное.
 		if !user.IsStartState(userStateCode) {
-			switch userStateCode {
-			/* Fast Task */
-			case user.FAST_TASK_ENTER_TITLE:
-				fast_task.EnterTitle(&update, &bot, &userStates)
-			case user.FAST_TASK_ENTER_INTERVAL:
-				fast_task.EnterInterval(&update, &bot, &userStates)
-			case user.FAST_TASK_DELETE_ENTER_NUM:
-				fast_task.EnterDeleteNum(&update, &bot, &userStates)
-				/* Schedule */
-			case user.SCHEDULE_ENTER_TITLE:
-				schedule.EnterTitle(&update, &bot, &userStates)
-			case user.SCHEDULE_ENTER_PLACE:
-				schedule.EnterPlace(&update, &bot, &userStates)
-			case user.SCHEDULE_ENTER_SPEAKER:
-				schedule.EnterSpeaker(&update, &bot, &userStates)
-			case user.SCHEDULE_ENTER_START:
-				schedule.EnterStart(&update, &bot, &userStates)
-			case user.SCHEDULE_ENTER_END:
-				schedule.EnterEnd(&update, &bot, &userStates)
-			case user.SCHEDULE_ENTER_OUTPUT_WEEKDAY:
-				schedule.EnterOutputWeekday(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_WEEKDAY:
-				schedule.EnterUpdateWeekday(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_NUM_TASK:
-				schedule.EnterUpdateNumTask(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_TITLE:
-				schedule.EnterUpdateTitle(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_PLACE:
-				schedule.EnterUpdatePlace(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_SPEAKER:
-				schedule.EnterUpdateSpeaker(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_START:
-				schedule.EnterUpdateStart(&update, &bot, &userStates)
-			case user.SCHEDULE_UPDATE_ENTER_END:
-				schedule.EnterUpdateEnd(&update, &bot, &userStates)
-			case user.SCHEDULE_DELETE_CLEARALL:
-				schedule.EnterClearAll(&update, &bot, &userStates)
-			case user.SCHEDULE_DELETE_WEEKDAY_TASK:
-				schedule.EnterDeleteWeekdayTask(&update, &bot, &userStates)
-			case user.SCHEDULE_DELETE_NUM_TASK:
-				schedule.EnterDeleteNumTask(&update, &bot, &userStates)
-			case user.SCHEDULE_DELETE_WEEKDAY:
-				schedule.EnterDeleteWeekday(&update, &bot, &userStates)
-			}
+			stateFuncDict[userStateCode](&update, &bot, &userStates)
 		}
 	}
 }
