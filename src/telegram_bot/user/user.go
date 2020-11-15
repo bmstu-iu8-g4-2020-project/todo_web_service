@@ -5,54 +5,66 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"todo_web_service/src/models"
+	"todo_web_service/src/telegram_bot/utils"
 )
 
-const (
-	DefaultServiceUrl = "http://localhost:8080/"
-	UserServiceUrl    = DefaultServiceUrl + "user"
-)
-
-func InitUser(userId int, userName string, firstName string, secondName string) (string, error) {
-	reply := fmt.Sprintf("Здравствуйте, %s %s!\n", firstName, secondName)
-
+func InitUser(userId int, userName string) error {
 	user := models.User{
-		Id:         userId,
-		UserName:   userName,
-		FirstName:  firstName,
-		SecondName: secondName,
+		Id:           userId,
+		UserName:     userName,
+		StateCode:    START,
+		StateRequest: "{}",
 	}
 
 	bytesRepr, err := json.Marshal(user)
 	if err != nil {
-		return "", err
+		return err
 	}
-
-	_, err = http.Post(UserServiceUrl, "application/json", bytes.NewBuffer(bytesRepr))
+	url := utils.DefaultServiceUrl + "user/"
+	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	reply += "Добро пожаловать!"
-
-	return reply, nil
+	return nil
 }
 
-func GetUserInfo(userId int) (string, error) {
+func GetUser(userId int) (models.User, error) {
 	user := models.User{}
 
-	userInfoUrl := UserServiceUrl + fmt.Sprintf("/%s", strconv.Itoa(userId))
+	url := utils.DefaultServiceUrl + fmt.Sprintf("user/%v", userId)
 
-	resp, err := http.Get(userInfoUrl)
+	resp, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return models.User{}, err
 	}
 
-	json.NewDecoder(resp.Body).Decode(&user)
+	err = json.NewDecoder(resp.Body).Decode(&user)
+	if err != nil {
+		return models.User{}, err
+	}
 
-	reply := fmt.Sprintf("Здравствуйте, %s %s. \nВаш 🆔: %s",
-		user.FirstName, user.SecondName, strconv.Itoa(user.Id))
+	return user, nil
+}
 
-	return reply, nil
+func UpdateUser(userId int, username string, stateCode int, stateRequest string) error {
+	user := models.User{
+		Id:           userId,
+		UserName:     username,
+		StateCode:    stateCode,
+		StateRequest: stateRequest,
+	}
+
+	bytesRepr, err := json.Marshal(user)
+	if err != nil {
+		return err
+	}
+
+	_, err = utils.Put(utils.DefaultServiceUrl+"user/{id}", bytes.NewBuffer(bytesRepr))
+	if err != nil {
+		return err
+	}
+
+	return err
 }

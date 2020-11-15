@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"net/http"
-	"strconv"
 	"todo_web_service/src/models"
 )
 
-func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) AddFastTaskHandler(w http.ResponseWriter, r *http.Request) {
 	fastTask := models.FastTask{}
 	err := json.NewDecoder(r.Body).Decode(&fastTask)
 	if err != nil {
@@ -18,24 +17,32 @@ func (env *Environment) AddFastTask(w http.ResponseWriter, r *http.Request) {
 
 	err = env.Db.AddFastTask(fastTask)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
-func (env *Environment) GetAllFastTasks(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetAllFastTasksHandler(w http.ResponseWriter, _ *http.Request) {
 	fastTasks, err := env.Db.GetAllFastTasks()
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	json.NewEncoder(w).Encode(fastTasks)
+	err = json.NewEncoder(w).Encode(fastTasks)
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 }
 
-func (env *Environment) GetFastTasks(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) GetFastTasksHandler(w http.ResponseWriter, r *http.Request) {
 	paramFromURL := mux.Vars(r)
-	assigneeId, err := strconv.Atoi(paramFromURL["id"])
+	assigneeId, err := ValidateUserId(paramFromURL["id"])
+
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -43,14 +50,21 @@ func (env *Environment) GetFastTasks(w http.ResponseWriter, r *http.Request) {
 
 	fastTasks, err := env.Db.GetFastTasks(assigneeId)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
 		return
 	}
 
-	json.NewEncoder(w).Encode(fastTasks)
+	err = json.NewEncoder(w).Encode(fastTasks)
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
-func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) UpdateFastTasksHandler(w http.ResponseWriter, r *http.Request) {
 	var fastTasks []models.FastTask
 	err := json.NewDecoder(r.Body).Decode(&fastTasks)
 	if err != nil {
@@ -61,14 +75,16 @@ func (env *Environment) UpdateFastTasks(w http.ResponseWriter, r *http.Request) 
 	err = env.Db.UpdateFastTasks(fastTasks)
 
 	if err != nil {
-		w.WriteHeader(http.StatusNotModified)
+		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }
 
-func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {
+func (env *Environment) DeleteFastTaskHandler(w http.ResponseWriter, r *http.Request) {
 	paramFromURL := mux.Vars(r)
-	ftId, err := strconv.Atoi(paramFromURL["ft_id"])
+	ftId, err := ValidateId(paramFromURL["ft_id"])
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -77,7 +93,9 @@ func (env *Environment) DeleteFastTask(w http.ResponseWriter, r *http.Request) {
 	err = env.Db.DeleteFastTask(ftId)
 
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusNotModified), http.StatusNotModified)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
+	w.WriteHeader(http.StatusOK)
 }

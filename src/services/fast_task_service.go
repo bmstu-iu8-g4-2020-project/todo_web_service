@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"log"
 	"time"
 	"todo_web_service/src/models"
@@ -72,26 +71,22 @@ func (db *DataBase) UpdateFastTasks(fastTasks []models.FastTask) error {
 	for _, currTask := range fastTasks {
 		newDeadline := currTask.Deadline.Add(currTask.NotifyInterval)
 
-		result, err := db.Exec("UPDATE fast_task SET deadline = $1 WHERE id = $2;",
+		_, err := db.Exec("UPDATE fast_task SET deadline = $1 WHERE id = $2;",
 			newDeadline, currTask.Id)
 		if err != nil {
 			return err
 		}
 
-		fmt.Println(result.RowsAffected())
 	}
 
 	return nil
 }
 
 func (db *DataBase) DeleteFastTask(ftId int) error {
-	log.Println("fast task in service: ", ftId)
-	result, err := db.Exec("DELETE FROM fast_task WHERE id = $1", ftId)
+	_, err := db.Exec("DELETE FROM fast_task WHERE id = $1", ftId)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(result.RowsAffected())
 
 	return nil
 }

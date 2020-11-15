@@ -1,10 +1,12 @@
-package client
+package utils
 
 import (
 	"io"
 	"net/http"
 	"time"
 )
+
+const DefaultServiceUrl = "http://localhost:8080/"
 
 var client = http.Client{
 	Timeout: time.Second * 15,

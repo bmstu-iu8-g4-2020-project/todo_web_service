@@ -20,7 +20,7 @@ const (
 	transportType = "suburban"
 )
 
-func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
+func SuburbanHandler(w http.ResponseWriter, _ *http.Request) {
 	apiKey := os.Getenv("API_KEY")
 
 	url := fmt.Sprintf("https://api.rasp.yandex.net/v3.0/search/?apikey=%s&format=json&from=%s&to=%s&lang=%s&date=%s&transport_types=%s",
@@ -47,13 +47,14 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintln(w, "Три ближайшие электрички в направлении:\n", sr.Search.From.Title, "-->", sr.Search.To.Title)
+	_, _ = fmt.Fprintln(w, "Три ближайшие электрички в направлении:\n",
+		sr.Search.From.Title, "-->", sr.Search.To.Title)
 
 	counter := 0
 	for i := range sr.Segments {
 		currSuburban := sr.Segments[i]
 		if currSuburban.Departure.After(time.Now()) {
-			fmt.Fprintln(w, "Отправляется:", currSuburban.Departure.Format(layoutTime),
+			_, _ = fmt.Fprintln(w, "Отправляется:", currSuburban.Departure.Format(layoutTime),
 				"Прибывает:", currSuburban.Arrival.Format(layoutTime),
 				"Поезд:", currSuburban.Thread.Number, currSuburban.Thread.Title)
 			counter++
@@ -65,8 +66,8 @@ func SuburbanHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if counter == 0 {
-		fmt.Fprintln(w, "Ближайших сегодня уже нет :(")
+		_, _ = fmt.Fprintln(w, "Ближайших сегодня уже нет :(")
 	}
 
-	fmt.Fprintln(w, "\n\nДанные предоставлены сервисом Яндекс.Расписания: http://rasp.yandex.ru/")
+	_, _ = fmt.Fprintln(w, "\n\nДанные предоставлены сервисом Яндекс.Расписания: http://rasp.yandex.ru/")
 }
