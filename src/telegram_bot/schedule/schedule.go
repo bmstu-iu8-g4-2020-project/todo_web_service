@@ -111,7 +111,7 @@ func GetWeekdaySchedule(userId int, weekday time.Weekday) ([]models.ScheduleTask
 	})
 
 	var output strings.Builder
-	fmt.Fprintf(&output, "%s:\n\n", services.WeekdayToStr(weekday))
+	fmt.Fprintf(&output, utils.EmojiWeekday+" %s:\n\n", services.WeekdayToStr(weekday))
 	for i, scheduleTask := range weekdaySchedule {
 		fmt.Fprintf(&output, "Задача %v\n", i+1)
 		fmt.Fprintf(&output, "%s %s\n", utils.EmojiTitle, scheduleTask.Title)

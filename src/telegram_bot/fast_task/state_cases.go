@@ -23,7 +23,8 @@ func FillFastTaskFuncs(stateFuncDict *map[int]user.StateFunc) {
 func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
 	var fastTask models.FastTask
 	if update.Message.Text == "" {
-		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Нет текстового сообщения, попробуйте ещё раз."))
+		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, utils.EmojiWarning+
+			"Нет текстового сообщения, попробуйте ещё раз."))
 		return
 	}
 	fastTask.TaskName = update.Message.Text
@@ -31,7 +32,7 @@ func EnterTitle(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[
 	if err != nil {
 		log.Fatal(err)
 	}
-	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, utils.EmojiTime+
 		"Введите, с какой периодичностью вам будут приходить сообщения. (Например: 1h10m40s)"))
 
 	user.SetState(update.Message.From.ID, update.Message.From.UserName, userStates,
@@ -42,7 +43,7 @@ func EnterInterval(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *m
 	var fastTask models.FastTask
 	interval, err := time.ParseDuration(update.Message.Text)
 	if err != nil {
-		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, utils.EmojiWarning+
 			"Кажется, введённое вами сообщение не удовлетворяет формату. (пример: 1h40m13s) Попробуйте ещё раз."))
 		return
 	}
@@ -64,7 +65,7 @@ func EnterInterval(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *m
 		log.Fatal(err)
 	}
 
-	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, "Задача успешно добавлена!"))
+	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, utils.EmojiCompleted+"Задача успешно добавлена!"))
 	user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
 }
 
@@ -74,13 +75,13 @@ func EnterDeleteNum(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *
 	// Считываем порядковый номер задачи, которую нужно удалить.
 	ftNumber, err := strconv.Atoi(update.Message.Text)
 	if err != nil {
-		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, utils.EmojiWarning+
 			"Кажется, вы ввели не число. Введите номер задания, который хотите удалить."))
 		return
 	}
 
 	if ftNumber <= 0 || ftNumber > len(fastTasks) {
-		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, utils.EmojiWarning+
 			"Кажется, такого дела не существует. Введите номер задания, который хотите удалить."))
 		return
 	}
@@ -99,6 +100,7 @@ func EnterDeleteNum(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *
 		log.Fatal(err)
 	}
 
-	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("Задача %v успешно удалена!\n", ftNumber)+output))
+	(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("%s Задача %v успешно удалена!\n",
+		utils.EmojiCompleted, ftNumber)+output))
 	user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
 }
