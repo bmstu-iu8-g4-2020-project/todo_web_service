@@ -285,8 +285,10 @@ func main() {
 			continue
 		case "clear_schedule":
 			if user.IsStartState(userStateCode) {
-				_, _ = bot.Send(tgbotapi.NewMessage(chatId, "Вы точно хотите ПОЛНОСТЬЮ очистить ваше текущее расписание? Да или нет?"))
-				_ = user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Вы точно хотите ПОЛНОСТЬЮ очистить ваше текущее расписание? Да или нет?"))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -295,14 +297,20 @@ func main() {
 			if user.IsStartState(userStateCode) {
 				_, _ = bot.Send(tgbotapi.NewMessage(chatId, utils.EmojiWeekday+
 					"Расписание на какой день недели вы хотите очистить?"))
-				_ = user.SetState(userId, userName, &userStates, user.State{Code: user.SCHEDULE_DELETE_WEEKDAY, Request: "{}"})
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.SCHEDULE_DELETE_WEEKDAY, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
 		case "reset":
-			_ = user.ResetState(userId, userName, &userStates)
-			_, _ = bot.Send(tgbotapi.NewMessage(chatId, utils.EmojiReset+"Ввод данных прерван."))
+			if !user.IsStartState(userStateCode) {
+				_ = user.ResetState(userId, userName, &userStates)
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId, utils.EmojiReset+"Ввод данных прерван."))
+			} else {
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					utils.EmojiWarning+"Вы не вводите данные. Вам нечего прерывать"))
+			}
 			continue
 		}
 
