@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/Syfaro/telegram-bot-api"
+	owm "github.com/briandowns/openweathermap"
 
 	"todo_web_service/src/telegram_bot/fast_task"
 	"todo_web_service/src/telegram_bot/schedule"
