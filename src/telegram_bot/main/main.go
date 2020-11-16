@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/Syfaro/telegram-bot-api"
-	owm "github.com/briandowns/openweathermap"
 
 	"todo_web_service/src/telegram_bot/fast_task"
 	"todo_web_service/src/telegram_bot/schedule"
 	"todo_web_service/src/telegram_bot/user"
 	"todo_web_service/src/telegram_bot/utils"
+	"todo_web_service/src/telegram_bot/weather"
 )
 
 const (
@@ -59,6 +59,7 @@ func main() {
 	stateFuncDict := make(map[int]user.StateFunc)
 	fast_task.FillFastTaskFuncs(&stateFuncDict)
 	schedule.FillScheduleFuncs(&stateFuncDict)
+	weather.FillWeatherFuncs(&stateFuncDict)
 
 	// Читаем обновления из канала
 	for update := range updates {
@@ -103,6 +104,17 @@ func main() {
 				body, _ := ioutil.ReadAll(resp.Body)
 
 				_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
+			} else {
+				user.SendEnteringNotFinished(&bot, chatId)
+			}
+			continue
+		case "weather":
+			if user.IsStartState(userStateCode) {
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					fmt.Sprintf("Чтобы получить данные о погоде, пришлите мне свою геопозицию. \n"+
+						"(нажмите на %s и выберите \"Геопозиция\"", utils.EmojiPaperclip)))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_SEND_LOCATION, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}

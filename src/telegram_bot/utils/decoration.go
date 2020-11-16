@@ -14,6 +14,9 @@ const (
 	EmojiSpeaker = "👤"
 	EmojiPlace   = "🏫"
 	EmojiTime    = "⌚"
+
+	EmojiLocation  = "📍"
+	EmojiPaperclip = "📎"
 )
 
 const (

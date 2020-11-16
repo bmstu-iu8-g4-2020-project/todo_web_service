@@ -22,7 +22,7 @@ const (
 )
 
 func SuburbanHandler(w http.ResponseWriter, _ *http.Request) {
-	apiKey := os.Getenv("API_KEY")
+	apiKey := os.Getenv("RASP_API_KEY")
 
 	url := fmt.Sprintf("https://api.rasp.yandex.net/v3.0/search/?apikey=%s&format=json&from=%s&to=%s&lang=%s&date=%s&transport_types=%s",
 		apiKey, from, to, lang, time.Now().Format(layoutDate), transportType)
