@@ -3,6 +3,7 @@ package weather
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"strings"
 
@@ -43,12 +44,16 @@ func SendLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *ma
 
 	var output strings.Builder
 
-	fmt.Fprintf(&output, "%s Погода в городе %s.\n\n", utils.EmojiLocation, w.Name)
-	fmt.Fprintf(&output, "На улице: %s\n", w.Weather[0].Description)
-	fmt.Fprintf(&output, "Температура воздуха: %v °C\n", w.Main.Temp)
-	fmt.Fprintf(&output, "Ощущается как: %v °C\n", w.Main.FeelsLike)
-	fmt.Fprintf(&output, "Скорость ветра: %v м/c\n", w.Wind.Speed)
-	fmt.Fprintf(&output, "Облачность: %v%% \n", w.Clouds.All)
+	weather := w.Weather[0]
+
+	fmt.Fprintf(&output, "%sПогода в городе %s.\n\n", utils.EmojiLocation, w.Name)
+	fmt.Fprintf(&output, "Сейчас на улице: %s %s\n", weather.Description, WeatherIdToEmoji(weather.ID))
+	fmt.Fprintf(&output, "Температура воздуха: %v°C\n", math.Round(w.Main.Temp))
+	fmt.Fprintf(&output, "Ощущается как: %v°C\n", math.Round(w.Main.FeelsLike))
+	fmt.Fprintf(&output, "Влажность воздуха: %v%%\n", w.Main.Humidity)
+	fmt.Fprintf(&output, "Атмосферное давление: \n%.2f мм рт. ст.\n", TransferToMmHg(w.Main.Pressure))
+	fmt.Fprintf(&output, "Ветер: %s %v м/c\n", DegToDirection(w.Wind.Deg), math.Round(w.Wind.Speed))
+	fmt.Fprintf(&output, "Облачность: %s %v%% \n", WeatherIdToEmoji(weather.ID), w.Clouds.All)
 
 	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, output.String()))
 
