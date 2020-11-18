@@ -70,8 +70,8 @@ func SendName(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[in
 	err = w.CurrentByName(msg.Text)
 	if err != nil {
 		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID, utils.EmojiWarning+
-			"%s Что-то не так с названием места, данные отыскать не удалось.\n"+
-			"Воспользуйтесь /geopos_weather и пришлите геопозицию необходимого места.",
+			"Что-то не так с названием места, данные отыскать не удалось.\n"+
+			"Воспользуйтесь \n/geopos_weather и пришлите геопозицию необходимого места.",
 		))
 		_ = user.ResetState(msg.From.ID, msg.From.UserName, userStates)
 		return
