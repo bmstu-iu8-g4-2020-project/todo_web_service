@@ -15,7 +15,7 @@ import (
 )
 
 func FillWeatherFuncs(stateFuncDict *map[int]user.StateFunc) {
-	(*stateFuncDict)[user.WEATHER_SEND_LOCATION] = SendLocation
+	(*stateFuncDict)[user.WEATHER_CURRENT_SEND_LOCATION] = SendLocation
 }
 
 func SendLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
@@ -38,6 +38,7 @@ func SendLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *ma
 		Longitude: msg.Location.Longitude,
 		Latitude:  msg.Location.Latitude,
 	})
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,14 +47,14 @@ func SendLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *ma
 
 	weather := w.Weather[0]
 
-	fmt.Fprintf(&output, "%sПогода в городе %s.\n\n", utils.EmojiLocation, w.Name)
-	fmt.Fprintf(&output, "Сейчас на улице: %s %s\n", weather.Description, WeatherIdToEmoji(weather.ID))
+	fmt.Fprintf(&output, "%sПогода: %s.\n\n", utils.EmojiLocation, w.Name)
+	fmt.Fprintf(&output, "Сейчас на улице: %s%s\n", weather.Description, WeatherIdToEmoji(weather.ID))
 	fmt.Fprintf(&output, "Температура воздуха: %v°C\n", math.Round(w.Main.Temp))
 	fmt.Fprintf(&output, "Ощущается как: %v°C\n", math.Round(w.Main.FeelsLike))
 	fmt.Fprintf(&output, "Влажность воздуха: %v%%\n", w.Main.Humidity)
 	fmt.Fprintf(&output, "Атмосферное давление: \n%.2f мм рт. ст.\n", TransferToMmHg(w.Main.Pressure))
 	fmt.Fprintf(&output, "Ветер: %s %v м/c\n", DegToDirection(w.Wind.Deg), math.Round(w.Wind.Speed))
-	fmt.Fprintf(&output, "Облачность: %s %v%% \n", WeatherIdToEmoji(weather.ID), w.Clouds.All)
+	fmt.Fprintf(&output, "Облачность: %s %v%% \n", CloudsAllToEmoji(w.Clouds.All), w.Clouds.All)
 
 	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, output.String()))
 

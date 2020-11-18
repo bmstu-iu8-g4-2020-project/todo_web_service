@@ -83,3 +83,14 @@ func DegToDirection(deg float64) string {
 
 	return "Штиль"
 }
+
+func CloudsAllToEmoji(cloudsAll int) string {
+	if cloudsAll >= 0 && cloudsAll <= 10 {
+		return utils.EmojiWeatherClear
+	} else if cloudsAll <= 30 {
+		return utils.EmojiWeatherFewClouds
+	} else if cloudsAll <= 60 {
+		return utils.EmojiWeatherScatteredClouds
+	}
+	return utils.EmojiWeatherOvercastClouds
+}
