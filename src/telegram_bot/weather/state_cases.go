@@ -2,13 +2,10 @@ package weather
 
 import (
 	"fmt"
-	"log"
-	"math"
-	"os"
-	"strings"
-
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 	owm "github.com/briandowns/openweathermap"
+	"log"
+	"os"
 
 	"todo_web_service/src/telegram_bot/user"
 	"todo_web_service/src/telegram_bot/utils"
@@ -16,6 +13,7 @@ import (
 
 func FillWeatherFuncs(stateFuncDict *map[int]user.StateFunc) {
 	(*stateFuncDict)[user.WEATHER_CURRENT_SEND_LOCATION] = SendLocation
+	(*stateFuncDict)[user.WEATHER_CURRENT_SEND_NAME] = SendName
 }
 
 func SendLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
@@ -38,25 +36,48 @@ func SendLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *ma
 		Longitude: msg.Location.Longitude,
 		Latitude:  msg.Location.Latitude,
 	})
-
 	if err != nil {
-		log.Fatal(err)
+		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID,
+			fmt.Sprintf("%s Что-то не так с вашей геопозицией, данные отыскать не удалось,"+
+				" воспользуйтесь /place_weather и введите название места, где вы находитесь.",
+				utils.EmojiWarning)))
+		_ = user.ResetState(msg.From.ID, msg.From.UserName, userStates)
+		return
 	}
 
-	var output strings.Builder
+	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		WeatherOutput(w, 0)))
 
-	weather := w.Weather[0]
+	_ = user.ResetState(msg.From.ID, msg.From.UserName, userStates)
+}
 
-	fmt.Fprintf(&output, "%sПогода: %s.\n\n", utils.EmojiLocation, w.Name)
-	fmt.Fprintf(&output, "Сейчас на улице: %s%s\n", weather.Description, WeatherIdToEmoji(weather.ID))
-	fmt.Fprintf(&output, "Температура воздуха: %v°C\n", math.Round(w.Main.Temp))
-	fmt.Fprintf(&output, "Ощущается как: %v°C\n", math.Round(w.Main.FeelsLike))
-	fmt.Fprintf(&output, "Влажность воздуха: %v%%\n", w.Main.Humidity)
-	fmt.Fprintf(&output, "Атмосферное давление: \n%.2f мм рт. ст.\n", TransferToMmHg(w.Main.Pressure))
-	fmt.Fprintf(&output, "Ветер: %s %v м/c\n", DegToDirection(w.Wind.Deg), math.Round(w.Wind.Speed))
-	fmt.Fprintf(&output, "Облачность: %s %v%% \n", CloudsAllToEmoji(w.Clouds.All), w.Clouds.All)
+func SendName(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
+	msg := update.Message
+	if update.Message.Text == "" {
+		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID,
+			fmt.Sprintf("%sВы прислали не название места. Попробуйте снова.", utils.EmojiWarning)))
+		return
+	}
 
-	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, output.String()))
+	weatherApiKey := os.Getenv("WEATHER_API_KEY")
+
+	w, err := owm.NewCurrent("C", "ru", weatherApiKey)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = w.CurrentByName(msg.Text)
+	if err != nil {
+		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID, utils.EmojiWarning+
+			"%s Что-то не так с названием места, данные отыскать не удалось.\n"+
+			"Воспользуйтесь /geopos_weather и пришлите геопозицию необходимого места.",
+		))
+		_ = user.ResetState(msg.From.ID, msg.From.UserName, userStates)
+		return
+	}
+
+	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		WeatherOutput(w, 0)))
 
 	_ = user.ResetState(msg.From.ID, msg.From.UserName, userStates)
 }
