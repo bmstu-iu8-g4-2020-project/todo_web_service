@@ -44,6 +44,7 @@ const (
 	/* Weather */
 	WEATHER_CURRENT_SEND_LOCATION
 	WEATHER_CURRENT_SEND_NAME
+	WEATHER_FORECAST
 )
 
 type State struct {

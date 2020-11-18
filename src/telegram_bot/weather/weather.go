@@ -15,6 +15,7 @@ const (
 	SouthDeg              = 180
 	WestDeg               = 270
 	MaxWindDeg            = 360
+	LayoutTime            = "15:40"
 )
 
 func TransferToMmHg(pressure float64) float64 {
@@ -101,14 +102,31 @@ func CloudsAllToEmoji(cloudsAll int) string {
 	return utils.EmojiWeatherOvercastClouds
 }
 
-func WeatherOutput(w *owm.CurrentWeatherData, index int) string {
+func WeatherOutput(w *owm.CurrentWeatherData) string {
 	var output strings.Builder
 
-	weather := w.Weather[index]
+	weather := w.Weather[0]
 	_, _ = fmt.Fprintf(&output, "%sПогода: %s.\n", utils.EmojiLocation, w.Name)
 	_, _ = fmt.Fprintf(&output, "Сейчас на улице:\n%s%s\n", WeatherIdToEmoji(weather.ID), weather.Description)
 	_, _ = fmt.Fprintf(&output, "Температура воздуха: %v°C\n", math.Round(w.Main.Temp))
 	_, _ = fmt.Fprintf(&output, "Ощущается как: %v°C\n", math.Round(w.Main.FeelsLike))
+	_, _ = fmt.Fprintf(&output, "Влажность воздуха: %v%%\n", w.Main.Humidity)
+	_, _ = fmt.Fprintf(&output, "Атмосферное давление: \n%.2f мм рт. ст.\n", TransferToMmHg(w.Main.Pressure))
+	_, _ = fmt.Fprintf(&output, "Ветер: %s %v м/c\n", DegToDirection(w.Wind.Deg), math.Round(w.Wind.Speed))
+	_, _ = fmt.Fprintf(&output, "Облачность:%s %v%% \n", CloudsAllToEmoji(w.Clouds.All), w.Clouds.All)
+
+	return output.String()
+}
+
+func ForecastOutput(w *owm.Forecast5WeatherList) string {
+	var output strings.Builder
+
+	date := w.DtTxt.Format("02.01.2006")
+
+	weather := w.Weather[0]
+	_, _ = fmt.Fprintf(&output, "%sПогода на %s.\n", utils.EmojiWeekday, date)
+	_, _ = fmt.Fprintf(&output, "%s%s\n", WeatherIdToEmoji(weather.ID), strings.Title(weather.Description))
+	_, _ = fmt.Fprintf(&output, "Температура воздуха: %v°C\n", math.Round(w.Main.Temp))
 	_, _ = fmt.Fprintf(&output, "Влажность воздуха: %v%%\n", w.Main.Humidity)
 	_, _ = fmt.Fprintf(&output, "Атмосферное давление: \n%.2f мм рт. ст.\n", TransferToMmHg(w.Main.Pressure))
 	_, _ = fmt.Fprintf(&output, "Ветер: %s %v м/c\n", DegToDirection(w.Wind.Deg), math.Round(w.Wind.Speed))
