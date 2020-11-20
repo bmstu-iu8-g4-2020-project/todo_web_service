@@ -106,10 +106,16 @@ func CloudsAllToEmoji(cloudsAll int) string {
 
 func WeatherOutput(w *owm.CurrentWeatherData) string {
 	var output strings.Builder
+	var weather owm.Weather
+	if len(w.Weather) > 1 {
+		weather = w.Weather[len(w.Weather)-1]
+	} else {
+		weather = w.Weather[0]
+	}
 
-	weather := w.Weather[0]
 	_, _ = fmt.Fprintf(&output, "%sПогода: %s.\n", utils.EmojiLocation, w.Name)
-	_, _ = fmt.Fprintf(&output, "Сейчас на улице:\n%s%s\n", WeatherIdToEmoji(weather.ID), weather.Description)
+	_, _ = fmt.Fprintf(&output, "Сейчас на улице:\n%s%s\n",
+		WeatherIdToEmoji(weather.ID), strings.Title(weather.Description))
 	_, _ = fmt.Fprintf(&output, "Температура воздуха: %v°C\n", math.Round(w.Main.Temp))
 	_, _ = fmt.Fprintf(&output, "Ощущается как: %v°C\n", math.Round(w.Main.FeelsLike))
 	_, _ = fmt.Fprintf(&output, "Влажность воздуха: %v%%\n", w.Main.Humidity)
@@ -154,13 +160,13 @@ func SendForecast(w *owm.ForecastWeatherData, update *tgbotapi.Update, bot **tgb
 
 func SendWrongPlaceName(update *tgbotapi.Update, bot **tgbotapi.BotAPI) {
 	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
-		fmt.Sprintf("%s Что-то не так с вашей геопозицией, данные отыскать не удалось,",
+		fmt.Sprintf("%sВы ввели непонятное название места, данные отыскать не удалось.",
 			utils.EmojiWarning)))
 }
 
 func SendWrongLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI) {
 	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
-		fmt.Sprintf("%s Что-то не так с вашей геопозицией, данные отыскать не удалось,",
+		fmt.Sprintf("%s Что-то не так с вашей геопозицией, данные отыскать не удалось.",
 			utils.EmojiWarning)))
 }
 
