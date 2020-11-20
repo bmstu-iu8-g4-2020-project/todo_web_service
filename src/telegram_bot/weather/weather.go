@@ -2,9 +2,12 @@ package weather
 
 import (
 	"fmt"
-	owm "github.com/briandowns/openweathermap"
 	"math"
 	"strings"
+
+	tgbotapi "github.com/Syfaro/telegram-bot-api"
+	owm "github.com/briandowns/openweathermap"
+
 	"todo_web_service/src/telegram_bot/utils"
 )
 
@@ -27,6 +30,9 @@ func WeatherIdToEmoji(weatherID int) string {
 	// Ясно.
 	case 800:
 		return utils.EmojiWeatherClear
+	// Снег.
+	case 600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622:
+		return utils.EmojiWeatherSnow
 	// Моросящий дождь.
 	case 300, 301, 302, 310, 311, 312, 313, 314, 321:
 		return utils.EmojiWeatherDrizzleRain
@@ -55,9 +61,6 @@ func WeatherIdToEmoji(weatherID int) string {
 		} else {
 			return utils.EmojiWeatherThunder
 		}
-	// Снег.
-	case 600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622:
-		return utils.EmojiWeatherSnow
 	// Туман, задымлённость.
 	case 701, 711, 721, 731, 741, 751, 761, 762, 771, 781:
 		return utils.EmojiWeatherMist
@@ -66,7 +69,6 @@ func WeatherIdToEmoji(weatherID int) string {
 	return ""
 }
 
-// Шпора: https://dpva.ru/Guide/GuideUnitsAlphabets/GuideUnitsAlphabets/WindRoseRuEng/
 func DegToDirection(deg float64) string {
 	halfDelta := 22.5 //
 
@@ -133,4 +135,37 @@ func ForecastOutput(w *owm.Forecast5WeatherList) string {
 	_, _ = fmt.Fprintf(&output, "Облачность:%s %v%% \n", CloudsAllToEmoji(w.Clouds.All), w.Clouds.All)
 
 	return output.String()
+}
+
+func SendForecast(w *owm.ForecastWeatherData, update *tgbotapi.Update, bot **tgbotapi.BotAPI) {
+	if forecast, ok := w.ForecastWeatherJson.(*owm.Forecast5WeatherData); ok {
+		_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, fmt.Sprintf("Прогноз погоды: %s (%s)",
+			forecast.City.Name, forecast.City.Country)))
+
+		for i := 0; i < len(forecast.List); i++ {
+			if forecast.List[i].DtTxt.Format(LayoutTime) == "15:00" {
+				output := ForecastOutput(&forecast.List[i])
+				_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, output))
+				i += 7
+			}
+		}
+	}
+}
+
+func SendWrongPlaceName(update *tgbotapi.Update, bot **tgbotapi.BotAPI) {
+	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		fmt.Sprintf("%s Что-то не так с вашей геопозицией, данные отыскать не удалось,",
+			utils.EmojiWarning)))
+}
+
+func SendWrongLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI) {
+	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		fmt.Sprintf("%s Что-то не так с вашей геопозицией, данные отыскать не удалось,",
+			utils.EmojiWarning)))
+}
+
+func SendInternalWeatherAPIError(update *tgbotapi.Update, bot **tgbotapi.BotAPI) {
+	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
+		fmt.Sprintf("%sВнутренняя ошибка openweathermap.org. Попробуйте позднее.",
+			utils.EmojiWarning)))
 }

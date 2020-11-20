@@ -110,30 +110,22 @@ func main() {
 			continue
 		case "weather":
 			if user.IsStartState(userStateCode) {
-				bot.Send(tgbotapi.NewMessage(chatId, "Я могу предоставить вам данные о погоде:\n"+utils.EmojiLocation+
-					"на текущий момент времени по вашей геопозиции:\n/geopos_weather\n"+utils.EmojiLocation+
-					"на текущий момент времени по введённому вами месту (стране, нас. пункту, городу):\n/place_weather\n"+utils.EmojiLocation+
-					"прогноз на ближайшие 5 дней по вашей геопозиции:\n/weather_forecast"))
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Я могу предоставить вам данные о погоде:\n"+utils.EmojiLocation+
+						"на текущий момент времени по вашей геопозиции:\n/current_weather\n"+utils.EmojiLocation+
+						"прогноз на ближайшие 5 дней по вашей:\n/weather_forecast\n"))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
 			continue
-		case "geopos_weather":
+		case "current_weather":
 			if user.IsStartState(userStateCode) {
 				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
-					fmt.Sprintf("Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\"", utils.EmojiPaperclip)))
+					"Как бы вы хотели получить данные о погоде? (введите порядковый номер) \n"+utils.EmojiLocation+
+						"1) По геопозиции.\n"+utils.EmojiLocation+
+						"2) По введённому с клавиатуры месту."))
 				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
-			} else {
-				user.SendEnteringNotFinished(&bot, chatId)
-			}
-			continue
-		case "place_weather":
-			if user.IsStartState(userStateCode) {
-				_, _ = bot.Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
-					"Введите место, где вы бы хотели узнать данные о погоде."))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
+					user.State{Code: user.WEATHER_CURRENT_CHOOSE_INPUT, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -141,10 +133,11 @@ func main() {
 		case "weather_forecast":
 			if user.IsStartState(userStateCode) {
 				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
-					fmt.Sprintf("Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\"",
-						utils.EmojiPaperclip)))
+					"Как бы вы хотели получить прогноз погоды? (введите порядковый номер)\n"+utils.EmojiLocation+
+						"1) По геопозиции.\n"+utils.EmojiLocation+
+						"2) По введённому с клавиатуры месту."))
 				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_FORECAST, Request: "{}"})
+					user.State{Code: user.WEATHER_FORECAST_CHOOSE_INPUT, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -357,7 +350,7 @@ func main() {
 			continue
 		}
 
-		// Если состояние пользователя не начальное.
+		// Если состояние пользователя не начальное, используем функцию текущего состояния.
 		if !user.IsStartState(userStateCode) {
 			stateFuncDict[userStateCode](&update, &bot, &userStates)
 		}
