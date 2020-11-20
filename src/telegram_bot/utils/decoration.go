@@ -1,7 +1,7 @@
 package utils
 
 const (
-	EmojiWarning   = "❗"
+	EmojiWarning   = "❗️"
 	EmojiCompleted = "✅"
 	EmojiReset     = "↩"
 
@@ -14,6 +14,29 @@ const (
 	EmojiSpeaker = "👤"
 	EmojiPlace   = "🏫"
 	EmojiTime    = "⌚"
+
+	EmojiLocation  = "📍"
+	EmojiPaperclip = "📎"
+
+	EmojiWeatherClear           = "☀"
+	EmojiWeatherFewClouds       = "🌤"
+	EmojiWeatherScatteredClouds = "️🌥"
+	EmojiWeatherOvercastClouds  = "☁️"
+	EmojiWeatherMist            = "️🌫"
+	EmojiWeatherSnow            = "❄"
+	EmojiWeatherDrizzleRain     = "🌦"
+	EmojiWeatherRain            = "🌧"
+	EmojiWeatherFreezingRain    = "🌨"
+	EmojiWeatherThunder         = "🌩"
+	EmojiWeatherThunderRain     = "⛈"
+	EmojiWeatherNorth           = "⬆️"
+	EmojiWeatherNorthEast       = "↗️"
+	EmojiWeatherEast            = "➡️"
+	EmojiWeatherSouthEast       = "↘️"
+	EmojiWeatherSouth           = "⬇️"
+	EmojiWeatherSouthWest       = "↙️"
+	EmojiWeatherWest            = "️️⬅️"
+	EmojiWeatherNorthWest       = "↖️"
 )
 
 const (

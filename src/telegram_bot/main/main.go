@@ -15,6 +15,7 @@ import (
 	"todo_web_service/src/telegram_bot/schedule"
 	"todo_web_service/src/telegram_bot/user"
 	"todo_web_service/src/telegram_bot/utils"
+	"todo_web_service/src/telegram_bot/weather"
 )
 
 const (
@@ -58,6 +59,7 @@ func main() {
 	stateFuncDict := make(map[int]user.StateFunc)
 	fast_task.FillFastTaskFuncs(&stateFuncDict)
 	schedule.FillScheduleFuncs(&stateFuncDict)
+	weather.FillWeatherFuncs(&stateFuncDict)
 
 	// Читаем обновления из канала
 	for update := range updates {
@@ -102,6 +104,40 @@ func main() {
 				body, _ := ioutil.ReadAll(resp.Body)
 
 				_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
+			} else {
+				user.SendEnteringNotFinished(&bot, chatId)
+			}
+			continue
+		case "weather":
+			if user.IsStartState(userStateCode) {
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Я могу предоставить вам данные о погоде:\n"+utils.EmojiLocation+
+						"на текущий момент времени по вашей геопозиции:\n/current_weather\n"+utils.EmojiLocation+
+						"прогноз на ближайшие 5 дней по вашей:\n/weather_forecast\n"))
+			} else {
+				user.SendEnteringNotFinished(&bot, chatId)
+			}
+			continue
+		case "current_weather":
+			if user.IsStartState(userStateCode) {
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Как бы вы хотели получить данные о погоде? (введите порядковый номер) \n"+utils.EmojiLocation+
+						"1) По геопозиции.\n"+utils.EmojiLocation+
+						"2) По введённому с клавиатуры месту."))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_CURRENT_CHOOSE_INPUT, Request: "{}"})
+			} else {
+				user.SendEnteringNotFinished(&bot, chatId)
+			}
+			continue
+		case "weather_forecast":
+			if user.IsStartState(userStateCode) {
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					"Как бы вы хотели получить прогноз погоды? (введите порядковый номер)\n"+utils.EmojiLocation+
+						"1) По геопозиции.\n"+utils.EmojiLocation+
+						"2) По введённому с клавиатуры месту."))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_FORECAST_CHOOSE_INPUT, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -314,7 +350,7 @@ func main() {
 			continue
 		}
 
-		// Если состояние пользователя не начальное.
+		// Если состояние пользователя не начальное, используем функцию текущего состояния.
 		if !user.IsStartState(userStateCode) {
 			stateFuncDict[userStateCode](&update, &bot, &userStates)
 		}
