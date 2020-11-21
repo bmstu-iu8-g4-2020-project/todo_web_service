@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"todo_web_service/src/models"
-	"todo_web_service/src/telegram_bot/user"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/models"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/user"
 )
 
 func StrToWeekday(strWeekday string) (time.Weekday, error) {

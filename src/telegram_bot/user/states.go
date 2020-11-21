@@ -6,8 +6,8 @@ import (
 
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 
-	"todo_web_service/src/models"
-	"todo_web_service/src/telegram_bot/utils"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/models"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/utils"
 )
 
 const (

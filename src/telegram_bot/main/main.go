@@ -11,11 +11,11 @@ import (
 
 	"github.com/Syfaro/telegram-bot-api"
 
-	"todo_web_service/src/telegram_bot/fast_task"
-	"todo_web_service/src/telegram_bot/schedule"
-	"todo_web_service/src/telegram_bot/user"
-	"todo_web_service/src/telegram_bot/utils"
-	"todo_web_service/src/telegram_bot/weather"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/fast_task"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/schedule"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/user"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/utils"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/weather"
 )
 
 const (
