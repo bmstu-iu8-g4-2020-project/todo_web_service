@@ -9,6 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Configure git for private variables
+        run: echo "Import env vars"
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           DB_NAME:  ${{ secrets.DB_NAME }}
