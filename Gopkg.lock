@@ -14,10 +14,22 @@
   version = "v11"
 
 [[projects]]
+  branch = "CI-adding"
+  name = "github.com/bmstu-iu8-g4-2020-project/todo_web_service"
+  packages = ["src/handlers","src/models","src/services","src/telegram_bot/fast_task","src/telegram_bot/schedule","src/telegram_bot/user","src/telegram_bot/utils","src/telegram_bot/weather"]
+  revision = "5f406da4f3c5f4a69bb7648b5ae9ce0feb4575bb"
+
+[[projects]]
   name = "github.com/briandowns/openweathermap"
   packages = ["."]
   revision = "73cba80d1d677713b4a1089cb7fea0780008cb1a"
   version = "v0.16.0"
+
+[[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/go-ozzo/ozzo-validation"
@@ -38,14 +50,32 @@
   version = "v1.8.0"
 
 [[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "f654a9112bbeac49ca2cd45bfbe11533c4666cf8"
+  version = "v1.6.1"
+
+[[projects]]
   name = "github.com/technoweenie/multipartstreamer"
   packages = ["."]
   revision = "a90a01d73ae432e2611d178c18367fbaa13e0154"
   version = "v1.0.1"
 
+[[projects]]
+  branch = "v3"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c8ab6b6de5713ebccb0ad06c7eee8fb1be64c652172a97a5124a06e2dc32d521"
+  inputs-digest = "9a3e03763ee1c7ace1b74ba59bbe43b45a8417154c8bfdbfc94271cce5701d85"
   solver-name = "gps-cdcl"
   solver-version = 1
