@@ -67,7 +67,6 @@ func main() {
 		userId := update.Message.From.ID
 		userName := update.Message.From.UserName
 		userStateCode := userStates[userId].Code
-
 		switch update.Message.Command() {
 		case "start":
 			if user.IsStartState(userStateCode) {
@@ -120,12 +119,9 @@ func main() {
 			continue
 		case "current_weather":
 			if user.IsStartState(userStateCode) {
-				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
-					"Как бы вы хотели получить данные о погоде? (введите порядковый номер) \n"+utils.EmojiLocation+
-						"1) По геопозиции.\n"+utils.EmojiLocation+
-						"2) По введённому с клавиатуры месту."))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_CHOOSE_INPUT, Request: "{}"})
+				msg := tgbotapi.NewMessage(chatId, "Как бы вы хотели получить данные о погоде?")
+				msg.ReplyMarkup = weatherChooseCurrentKeyboard
+				_, _ = bot.Send(msg)
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -348,6 +344,21 @@ func main() {
 					utils.EmojiWarning+"Вы не вводите данные. Вам нечего прерывать"))
 			}
 			continue
+		}
+
+		if update.CallbackQuery != nil {
+			switch update.CallbackQuery.Data {
+			case "curr_location":
+				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
+					"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")", utils.EmojiPaperclip)))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
+			case "curr_place_name":
+				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
+					"Введите место, где вы бы хотели узнать данные о погоде."))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
+			}
 		}
 
 		// Если состояние пользователя не начальное, используем функцию текущего состояния.
