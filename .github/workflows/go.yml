@@ -42,5 +42,6 @@ jobs:
            dep ensure
           fi
 
+
       - name: Test
-          run: go test ./...
+        run: go test ./...
