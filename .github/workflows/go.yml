@@ -1,12 +1,16 @@
-on: [ push, pull_request ]
 name: Test
+
+on: [ push, pull_request ]
+
 jobs:
   test:
     strategy:
       matrix:
         go-version: [ 1.15.x ]
         os: [ ubuntu-latest, macos-latest, windows-latest ]
+
     runs-on: ${{ matrix.os }}
+
     steps:
       - name: Configure git for private variables
         run: echo "Import env vars"
@@ -17,14 +21,18 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           RASP_API_KEY: ${{ secrets.RASP_API_KEY }}
           WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
+
       - name: Install Go
         uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.go-version }}
+
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Get dependencies
         run: |
+          tree
           if [ ! -d 'vendor' ]; then
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure -update
