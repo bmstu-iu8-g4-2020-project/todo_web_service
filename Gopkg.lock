@@ -20,6 +20,12 @@
   revision = "5f406da4f3c5f4a69bb7648b5ae9ce0feb4575bb"
 
 [[projects]]
+  branch = "CI-adding"
+  name = "github.com/bmstu-iu8-g4-2020-project/todo_web_service"
+  packages = ["src/handlers","src/models","src/services","src/telegram_bot/fast_task","src/telegram_bot/schedule","src/telegram_bot/user","src/telegram_bot/utils","src/telegram_bot/weather"]
+  revision = "7d55d84af5dfb9310c01d2786a9d407c34f9625e"
+
+[[projects]]
   name = "github.com/briandowns/openweathermap"
   packages = ["."]
   revision = "73cba80d1d677713b4a1089cb7fea0780008cb1a"
