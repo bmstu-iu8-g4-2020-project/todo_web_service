@@ -29,16 +29,19 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Get dependencies
+      -name: Install tree
         run: |
           sudo apt-get install tree
+      - name: Get dependencies
+        run: |
+          echo 'GOROOT:'; go env GOROOT
+          echo 'GOPATH:'; go env GOPATH
           tree
-#          if [ ! -d 'vendor' ]; then
-#           curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-#            dep ensure -update
-#           dep ensure
-#          fi
-#
-#     - name: Test
-#        run: go test ./...
+          if [ ! -d 'vendor' ]; then
+           curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+            dep ensure -update
+           dep ensure
+          fi
+
+      - name: Test
+          run: go test ./...
