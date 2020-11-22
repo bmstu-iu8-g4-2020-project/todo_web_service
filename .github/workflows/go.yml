@@ -32,8 +32,8 @@ jobs:
 
       - name: Get dependencies
         run: |
-          go env GOPATH
-          ls
+          sudo apt-get install tree
+          tree
 #          if [ ! -d 'vendor' ]; then
 #           curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 #            dep ensure -update
