@@ -61,12 +61,41 @@ func main() {
 	schedule.FillScheduleFuncs(&stateFuncDict)
 	weather.FillWeatherFuncs(&stateFuncDict)
 
+	var chatId int64
+	var userId int
+	var userName string
+
 	// Читаем обновления из канала
 	for update := range updates {
-		chatId := update.Message.Chat.ID
-		userId := update.Message.From.ID
-		userName := update.Message.From.UserName
+		if update.CallbackQuery != nil {
+			chatId = update.CallbackQuery.Message.Chat.ID
+			userId = update.CallbackQuery.Message.From.ID
+			userName = update.CallbackQuery.Message.From.UserName
+		} else {
+			chatId = update.Message.Chat.ID
+			userId = update.Message.From.ID
+			userName = update.Message.From.UserName
+		}
+
 		userStateCode := userStates[userId].Code
+
+		if update.CallbackQuery != nil {
+			switch update.CallbackQuery.Data {
+			case "curr_location":
+				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
+					"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")", utils.EmojiPaperclip)))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
+				continue
+			case "curr_place_name":
+				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
+					"Введите место, где вы бы хотели узнать данные о погоде."))
+				_ = user.SetState(userId, userName, &userStates,
+					user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
+				continue
+			}
+		}
+
 		switch update.Message.Command() {
 		case "start":
 			if user.IsStartState(userStateCode) {
@@ -344,21 +373,6 @@ func main() {
 					utils.EmojiWarning+"Вы не вводите данные. Вам нечего прерывать"))
 			}
 			continue
-		}
-
-		if update.CallbackQuery != nil {
-			switch update.CallbackQuery.Data {
-			case "curr_location":
-				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
-					"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")", utils.EmojiPaperclip)))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
-			case "curr_place_name":
-				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
-					"Введите место, где вы бы хотели узнать данные о погоде."))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
-			}
 		}
 
 		// Если состояние пользователя не начальное, используем функцию текущего состояния.
