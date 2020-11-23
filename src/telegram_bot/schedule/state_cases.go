@@ -229,7 +229,7 @@ func EnterDeleteWeekdayTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, user
 	}
 	if weekdaySchedule == nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
-			fmt.Sprintf("Кажется, на %s задач не существует. Удалять тут нечего. Ещё разок? /clear_schedule_task",
+			fmt.Sprintf("Кажется, на %s задач не существует. Удалять тут нечего.",
 				strings.ToLower(update.Message.Text))))
 		user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
 

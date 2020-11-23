@@ -4,6 +4,7 @@ const (
 	EmojiWarning   = "❗️"
 	EmojiCompleted = "✅"
 	EmojiReset     = "↩"
+	EmojiFire      = "🔥"
 
 	EmojiAttention = "📢"
 	EmojiFastTask  = "📌"
