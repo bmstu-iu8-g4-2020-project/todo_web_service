@@ -69,8 +69,8 @@ func main() {
 	for update := range updates {
 		if update.CallbackQuery != nil {
 			chatId = update.CallbackQuery.Message.Chat.ID
-			userId = update.CallbackQuery.Message.From.ID
-			userName = update.CallbackQuery.Message.From.UserName
+			userId = update.CallbackQuery.From.ID
+			userName = update.CallbackQuery.From.UserName
 		} else {
 			chatId = update.Message.Chat.ID
 			userId = update.Message.From.ID
@@ -86,14 +86,13 @@ func main() {
 					"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")", utils.EmojiPaperclip)))
 				_ = user.SetState(userId, userName, &userStates,
 					user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
-				continue
 			case "curr_place_name":
 				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
 					"Введите место, где вы бы хотели узнать данные о погоде."))
 				_ = user.SetState(userId, userName, &userStates,
 					user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
-				continue
 			}
+			continue
 		}
 
 		switch update.Message.Command() {
