@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -106,20 +104,20 @@ func main() {
 					user.SendEnteringNotFinished(&bot, chatId)
 				}
 				continue
-			case "suburban":
-				if user.IsStartState(userStateCode) {
-					resp, err := http.Get(SuburbanServiceUrl)
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					body, _ := ioutil.ReadAll(resp.Body)
-
-					_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
-				} else {
-					user.SendEnteringNotFinished(&bot, chatId)
-				}
-				continue
+			//case "suburban":
+			//	if user.IsStartState(userStateCode) {
+			//		resp, err := http.Get(SuburbanServiceUrl)
+			//		if err != nil {
+			//			log.Fatal(err)
+			//		}
+			//
+			//		body, _ := ioutil.ReadAll(resp.Body)
+			//
+			//		_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
+			//	} else {
+			//		user.SendEnteringNotFinished(&bot, chatId)
+			//	}
+			//	continue
 			case "weather":
 				if user.IsStartState(userStateCode) {
 					msg := tgbotapi.NewMessage(chatId, "Я могу предоставить вам данные о погоде:")
