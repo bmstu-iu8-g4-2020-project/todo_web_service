@@ -19,7 +19,7 @@
 
 [[projects]]
   branch = "CI-adding"
-  digest = "1:3b303b4527b55d1793b21662d1d4077600c0224fee4655a2563c7b30632d4c0c"
+  digest = "1:bb2d96eb7338612bda52a3ddf927c56cb2982a41da3a8ef100dbe2c4c89dbad3"
   name = "github.com/bmstu-iu8-g4-2020-project/todo_web_service"
   packages = [
     "src/handlers",
@@ -32,7 +32,7 @@
     "src/telegram_bot/weather",
   ]
   pruneopts = ""
-  revision = "61035e93be6579ca4e3a031709eb71e05796d809"
+  revision = "24e00d9fe11b56653e86e46e587d296999b6b734"
 
 [[projects]]
   digest = "1:e3cdbca2d3ad436c9954d1b907188c6f8fe1e402048329cd219e14d091498b00"

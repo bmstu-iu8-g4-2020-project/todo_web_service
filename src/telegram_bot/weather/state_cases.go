@@ -14,7 +14,6 @@ import (
 func FillWeatherFuncs(stateFuncDict *map[int]user.StateFunc) {
 	(*stateFuncDict)[user.WEATHER_CURRENT_SEND_LOCATION] = CurrentSendLocation
 	(*stateFuncDict)[user.WEATHER_CURRENT_SEND_NAME] = CurrentByName
-	(*stateFuncDict)[user.WEATHER_FORECAST_CHOOSE_INPUT] = ForecastChooseInput
 	(*stateFuncDict)[user.WEATHER_FORECAST_SEND_LOCATION] = ForecastByLocation
 	(*stateFuncDict)[user.WEATHER_FORECAST_SEND_NAME] = ForecastByName
 }
@@ -79,32 +78,6 @@ func CurrentByName(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *m
 	_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID, WeatherOutput(w)))
 
 	_ = user.ResetState(msg.From.ID, msg.From.UserName, userStates)
-}
-
-func ForecastChooseInput(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {
-	msg := update.Message
-
-	if msg.Text == "" {
-		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID,
-			fmt.Sprintf("%sВы прислали не текстовое сообщение. Попробуйте снова.", utils.EmojiWarning)))
-		return
-	}
-
-	switch msg.Text {
-	case "1":
-		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID, fmt.Sprintf(
-			"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")", utils.EmojiPaperclip)))
-		_ = user.SetState(msg.From.ID, msg.From.UserName, userStates,
-			user.State{Code: user.WEATHER_FORECAST_SEND_LOCATION, Request: "{}"})
-	case "2":
-		_, _ = (*bot).Send(tgbotapi.NewMessage(msg.Chat.ID, utils.EmojiLocation+
-			"Введите место, где вы бы хотели узнать данные о погоде."))
-		_ = user.SetState(msg.From.ID, msg.From.UserName, userStates,
-			user.State{Code: user.WEATHER_FORECAST_SEND_NAME, Request: "{}"})
-	default:
-		_, _ = (*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
-			fmt.Sprintf("%sВыберите 1 или 2 чтобы выбрать способ ввода. Попробуйте снова.", utils.EmojiWarning)))
-	}
 }
 
 func ForecastByLocation(update *tgbotapi.Update, bot **tgbotapi.BotAPI, userStates *map[int]user.State) {

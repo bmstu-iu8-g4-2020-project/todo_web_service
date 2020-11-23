@@ -80,19 +80,45 @@ func main() {
 		userStateCode := userStates[userId].Code
 
 		if update.CallbackQuery != nil {
-			switch update.CallbackQuery.Data {
-			case "curr_location":
-				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
-					"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")", utils.EmojiPaperclip)))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
-			case "curr_place_name":
-				_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
-					"Введите место, где вы бы хотели узнать данные о погоде."))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
+			if user.IsStartState(userStateCode) {
+				switch update.CallbackQuery.Data {
+				case "current_weather":
+					msg := tgbotapi.NewMessage(chatId, "Как бы вы хотели получить данные о погоде?")
+					msg.ReplyMarkup = weatherChooseCurrentKeyboard
+					_, _ = bot.Send(msg)
+				case "weather_forecast":
+					msg := tgbotapi.NewMessage(chatId, "Как бы вы хотели получить прогноз погоды?")
+					msg.ReplyMarkup = weatherChooseForecastKeyboard
+					_, _ = bot.Send(msg)
+				case "curr_location":
+					_, _ = bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
+						"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")",
+						utils.EmojiPaperclip)))
+					_ = user.SetState(userId, userName, &userStates,
+						user.State{Code: user.WEATHER_CURRENT_SEND_LOCATION, Request: "{}"})
+				case "curr_place_name":
+					_, _ = bot.Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
+						"Введите место, где вы бы хотели узнать данные о погоде."))
+					_ = user.SetState(userId, userName, &userStates,
+						user.State{Code: user.WEATHER_CURRENT_SEND_NAME, Request: "{}"})
+				case "forecast_location":
+					_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
+						"Пришлите мне свою геопозицию. \n(нажмите на %s и выберите \"Геопозиция\")",
+						utils.EmojiPaperclip)))
+					_ = user.SetState(userId, userName, &userStates,
+						user.State{Code: user.WEATHER_FORECAST_SEND_LOCATION, Request: "{}"})
+				case "forecast_place_name":
+					_, _ = (*bot).Send(tgbotapi.NewMessage(chatId, utils.EmojiLocation+
+						"Введите место, где вы бы хотели узнать данные о погоде."))
+					_ = user.SetState(userId, userName, &userStates,
+						user.State{Code: user.WEATHER_FORECAST_SEND_NAME, Request: "{}"})
+				}
+				continue
+			} else {
+				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
+					utils.EmojiWarning+"Вы пытаетесь использовать кнопки во время ввода данных. "+
+						"Закончите ввод, либо используйте /reset чтобы его прервать."))
 			}
-			continue
 		}
 
 		switch update.Message.Command() {
@@ -137,31 +163,9 @@ func main() {
 			continue
 		case "weather":
 			if user.IsStartState(userStateCode) {
-				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
-					"Я могу предоставить вам данные о погоде:\n"+utils.EmojiLocation+
-						"на текущий момент времени по вашей геопозиции:\n/current_weather\n"+utils.EmojiLocation+
-						"прогноз на ближайшие 5 дней по вашей:\n/weather_forecast\n"))
-			} else {
-				user.SendEnteringNotFinished(&bot, chatId)
-			}
-			continue
-		case "current_weather":
-			if user.IsStartState(userStateCode) {
-				msg := tgbotapi.NewMessage(chatId, "Как бы вы хотели получить данные о погоде?")
-				msg.ReplyMarkup = weatherChooseCurrentKeyboard
+				msg := tgbotapi.NewMessage(chatId, "Я могу предоставить вам данные о погоде:")
+				msg.ReplyMarkup = weatherKeyboard
 				_, _ = bot.Send(msg)
-			} else {
-				user.SendEnteringNotFinished(&bot, chatId)
-			}
-			continue
-		case "weather_forecast":
-			if user.IsStartState(userStateCode) {
-				_, _ = bot.Send(tgbotapi.NewMessage(chatId,
-					"Как бы вы хотели получить прогноз погоды? (введите порядковый номер)\n"+utils.EmojiLocation+
-						"1) По геопозиции.\n"+utils.EmojiLocation+
-						"2) По введённому с клавиатуры месту."))
-				_ = user.SetState(userId, userName, &userStates,
-					user.State{Code: user.WEATHER_FORECAST_CHOOSE_INPUT, Request: "{}"})
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
 			}
@@ -237,7 +241,6 @@ func main() {
 				if err != nil {
 					log.Fatal(err)
 				}
-
 				_, _ = bot.Send(tgbotapi.NewMessage(chatId, output))
 			} else {
 				user.SendEnteringNotFinished(&bot, chatId)
