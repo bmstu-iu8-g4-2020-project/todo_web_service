@@ -1,42 +1,37 @@
-name: Test
+name: Go
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        go-version: [ 1.15.x ]
-        os: [ ubuntu-latest ]
 
-    runs-on: ${{ matrix.os }}
-
+  build:
+    name: Build
+    runs-on: ubuntu-latest
     steps:
-      - name: Configure git for private variables
-        run: echo "Import env vars"
-        env:
-          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          RASP_API_KEY: ${{ secrets.RASP_API_KEY }}
-          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
 
-      - name: Install Go
-        uses: actions/setup-go@v2
+      - name: Set up Go 1.14
+        uses: actions/setup-go@v1
         with:
-          go-version: ${{ matrix.go-version }}
+          go-version: 1.14
+        id: go
 
-      - name: Checkout code
+      - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Get dependencies
-        run: |
-          if [ ! -d 'vendor' ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure -update
-            dep ensure
-          fi
+      - name: Build
+        run: go build
 
-      - name: Test
-        run: go test ./...
+      - name: Test and coverage
+        run: |
+          go test ./... -cover -coverprofile=profile.out
+          go tool cover -html=profile.out -o=coverage.html
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1.0.0
+        with:
+          name: coverage.html
+          path: coverage.html
