@@ -18,6 +18,9 @@ jobs:
     - name: Check out code
       uses: actions/checkout@v2
 
+    - name: Set up GOPATH
+      run: GOPATH=/home/runner/work/todo_web_service/todo_web_service
+
     - name: Get dependencies
       run: |
           if [ -f Gopkg.toml ]; then
@@ -29,4 +32,4 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go te  st -v ./...
