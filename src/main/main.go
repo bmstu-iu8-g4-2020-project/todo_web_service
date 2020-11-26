@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,10 @@ import (
 
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/handlers"
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/services"
+)
+
+const (
+	pathToScheme = "../database/init_db.sql"
 )
 
 func main() {
@@ -22,6 +27,9 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	services.Setup(pathToScheme, db)
+	fmt.Println("Database is ready!")
 
 	env := &handlers.Environment{Db: db}
 
