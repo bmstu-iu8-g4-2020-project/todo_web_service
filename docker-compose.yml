@@ -1,0 +1,30 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    container_name: todo_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: daniel
+      POSTGRES_DB: loggerdb
+      POSTGRES_PASSWORD: 1q2w3e
+  server:
+    depends_on:
+      - db
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      DB_NAME:
+      DB_USERNAME:
+      DB_PASSWORD:
+  bot:
+    depends_on:
+      - server
+    build:
+      ./src/telegram_bot
+    environment:
+      BOT_TOKEN:

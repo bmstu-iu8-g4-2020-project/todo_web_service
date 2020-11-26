@@ -121,7 +121,7 @@ func main() {
 			case "weather":
 				if user.IsStartState(userStateCode) {
 					msg := tgbotapi.NewMessage(chatId, "Я могу предоставить вам данные о погоде:")
-					msg.ReplyMarkup = weatherKeyboard
+					msg.ReplyMarkup = WeatherKeyboard
 					_, _ = bot.Send(msg)
 				} else {
 					user.SendEnteringNotFinished(&bot, chatId)
@@ -168,7 +168,7 @@ func main() {
 				if user.IsStartState(userStateCode) {
 					msg := tgbotapi.NewMessage(chatId,
 						utils.EmojiWeekday+"Выберете день недели, куда вы хотели бы добавить дело:")
-					msg.ReplyMarkup = weekdayScheduleKeyboard
+					msg.ReplyMarkup = WeekdayScheduleKeyboard
 					_, _ = bot.Send(msg)
 				} else {
 					user.SendEnteringNotFinished(&bot, chatId)
@@ -216,7 +216,7 @@ func main() {
 			case "delete_schedule":
 				if user.IsStartState(userStateCode) {
 					msg := tgbotapi.NewMessage(chatId, "Выберите опцию удаления:")
-					msg.ReplyMarkup = scheduleDeleteKeyboard
+					msg.ReplyMarkup = ScheduleDeleteKeyboard
 					_, _ = bot.Send(msg)
 				} else {
 					user.SendEnteringNotFinished(&bot, chatId)
@@ -286,11 +286,11 @@ func main() {
 						user.State{Code: user.SCHEDULE_DELETE_CLEARALL, Request: "{}"})
 				case "current_weather":
 					msg := tgbotapi.NewMessage(chatId, "Как бы вы хотели получить данные о погоде?")
-					msg.ReplyMarkup = weatherChooseCurrentKeyboard
+					msg.ReplyMarkup = WeatherChooseCurrentKeyboard
 					_, _ = bot.Send(msg)
 				case "weather_forecast":
 					msg := tgbotapi.NewMessage(chatId, "Как бы вы хотели получить прогноз погоды?")
-					msg.ReplyMarkup = weatherChooseForecastKeyboard
+					msg.ReplyMarkup = WeatherChooseForecastKeyboard
 					_, _ = bot.Send(msg)
 				case "curr_location":
 					_, _ = bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf(
@@ -329,3 +329,65 @@ func main() {
 		}
 	}
 }
+
+
+var WeekdayScheduleKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Понедельник", "add_mon"),
+		tgbotapi.NewInlineKeyboardButtonData("Четверг", "add_thu"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Вторник", "add_tue"),
+		tgbotapi.NewInlineKeyboardButtonData("Пятница", "add_fri"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Среда", "add_wed"),
+		tgbotapi.NewInlineKeyboardButtonData("Суббота", "add_sat"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Воскресенье", "add_sun"),
+	),
+)
+
+var ScheduleDeleteKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiTitle+
+			"Удалить задачу", "delete_schedule_task"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiWeekday+
+			"Очистить расписание на день", "clear_weekday_schedule"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiFire+
+			"Полностью очистить расписание", "clear_schedule"),
+	),
+)
+
+var WeatherKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("На текущий момент времени", "current_weather"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Прогноз на ближайшие 5 дней", "weather_forecast"),
+	),
+)
+
+var WeatherChooseCurrentKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiLocation+"По геопозиции", "curr_location"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiMap+"По введённому месту", "curr_place_name"),
+	),
+)
+
+var WeatherChooseForecastKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiLocation+"По геопозиции", "forecast_location"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiMap+"По введённому месту", "forecast_place_name"),
+	),
+)
+
