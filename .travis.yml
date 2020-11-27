@@ -1,0 +1,17 @@
+os: linux
+
+sudo: required
+
+services: docker
+
+language: go
+
+jobs:
+  include:
+    - name: "UP"
+      script:
+        - docker-compose build
+        - docker-compose up -d
+
+notifications:
+  email: false

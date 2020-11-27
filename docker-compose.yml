@@ -7,10 +7,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      # TODO: Change it to environment variables
-      POSTGRES_USER: aaaaaaaalesha
-      POSTGRES_DB: todownik
-      POSTGRES_PASSWORD: Qwerty12345!
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
   server:
     container_name: todoapp
     depends_on:
@@ -20,10 +19,9 @@ services:
     ports:
       - 8080:8080
     environment:
-      # TODO: Change it to environment variables
-      DB_NAME: todownik
-      DB_USERNAME: aaaaaaaalesha
-      DB_PASSWORD: Qwerty12345!
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
 
   bot:
     depends_on:
@@ -31,5 +29,6 @@ services:
     build:
       ./src/telegram_bot
     environment:
-      BOT_TOKEN:
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
     restart: always
