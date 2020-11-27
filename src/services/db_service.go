@@ -3,6 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/models"
@@ -35,9 +36,17 @@ type Datastore interface {
 	ClearAll(assigneeId int) error
 }
 
-func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
-	dbSourceName := fmt.Sprintf("host=todo_postgres port=5432 user=daniel password=1q2w3e dbname=loggerdb sslmode=disable")
+func SetDBConfig() string {
+	dbName := os.Getenv("DB_NAME")
+	dbUser := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+
 	fmt.Println(dbName, dbUser, dbPassword)
+	return fmt.Sprintf("host=logger_postgres port=5432 user=daniel password=1q2w3e dbname=loggerdb sslmode=disable")
+
+}
+
+func NewDB(dbSourceName string) (*DataBase, error) {
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {
 		return nil, err
@@ -48,5 +57,34 @@ func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
 		return nil, err
 	}
 	fmt.Println("Successfully connected to database!")
+
 	return &DataBase{db}, nil
+}
+
+func Setup(pathToFile string, db *DataBase) {
+	file, err := os.Open(pathToFile)
+	if err != nil {
+		fmt.Println("setup file opening error: ", err)
+		return
+	}
+	defer file.Close()
+
+	stat, err := file.Stat()
+	if err != nil {
+		fmt.Println("error after opening setup file: ", err)
+		return
+	}
+
+	bytes := make([]byte, stat.Size())
+	_, err = file.Read(bytes)
+	if err != nil {
+		fmt.Println("error after opening setup file: ", err)
+		panic(err)
+	}
+
+	command := string(bytes)
+	_, err = db.Exec(command)
+	if err != nil {
+		fmt.Println("command error")
+	}
 }

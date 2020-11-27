@@ -7,6 +7,7 @@ services:
     ports:
       - "5432:5432"
     environment:
+      # TODO: Change it to environment variables
       POSTGRES_USER: daniel
       POSTGRES_DB: loggerdb
       POSTGRES_PASSWORD: 1q2w3e
@@ -21,6 +22,7 @@ services:
       DB_NAME: loggerdb
       DB_USERNAME: daniel
       DB_PASSWORD: 1q2w3e
+
   bot:
     depends_on:
       - server
