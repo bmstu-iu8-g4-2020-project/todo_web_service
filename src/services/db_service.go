@@ -36,9 +36,16 @@ type Datastore interface {
 	ClearAll(assigneeId int) error
 }
 
-func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
-	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName)
+func SetDBConfig() string {
+	dbName := os.Getenv("DB_NAME")
+	dbUser := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
 
+	return fmt.Sprintf("host=todo_postgres port=? user=%s password=%s dbname=%s sslmode=disable",
+		dbUser, dbPassword, dbName)
+}
+
+func NewDB(dbSourceName string) (*DataBase, error) {
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {
 		return nil, err

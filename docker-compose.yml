@@ -7,6 +7,7 @@ services:
     ports:
       - "5432:5432"
     environment:
+      # TODO: Change it to environment variables
       POSTGRES_USER: daniel
       POSTGRES_DB: loggerdb
       POSTGRES_PASSWORD: 1q2w3e
@@ -18,13 +19,15 @@ services:
     ports:
       - 8080:8080
     environment:
-      DB_NAME:
-      DB_USERNAME:
-      DB_PASSWORD:
+      # TODO: Change it to environment variables
+      DB_NAME: todownik
+      DB_USERNAME: aaaaaaaalesha
+      DB_PASSWORD: Qwerty12345!
   bot:
     depends_on:
       - server
     build:
       ./src/telegram_bot
     environment:
-      BOT_TOKEN:
+      # TODO: Change it to environment variables
+      BOT_TOKEN: 1435707762:AAGvjZ6x-mvlrOfqwsGw-FR-PpNtrGBZ6Fk
