@@ -42,8 +42,8 @@ func SetDBConfig() string {
 	dbPassword := os.Getenv("DB_PASSWORD")
 
 	fmt.Println(dbName, dbUser, dbPassword)
-	return fmt.Sprintf("host=logger_postgres port=5432 user=daniel password=1q2w3e dbname=loggerdb sslmode=disable")
-
+	return fmt.Sprintf("host=todo_postgres port=5432 user={%s} password={%s} dbname={%s} sslmode=disable",
+		               dbUser, dbPassword, dbName)
 }
 
 func NewDB(dbSourceName string) (*DataBase, error) {
@@ -62,6 +62,11 @@ func NewDB(dbSourceName string) (*DataBase, error) {
 }
 
 func Setup(pathToFile string, db *DataBase) {
+	path, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(path)
 	file, err := os.Open(pathToFile)
 	if err != nil {
 		fmt.Println("setup file opening error: ", err)

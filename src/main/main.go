@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	pathToScheme = "../database/init_db.sql"
+	pathToScheme = "./src/database/init_db.sql"
 )
 
 func main() {
