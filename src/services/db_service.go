@@ -36,8 +36,8 @@ type Datastore interface {
 }
 
 func NewDB(dbName string, dbUser string, dbPassword string) (*DataBase, error) {
-	dbSourceName := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", dbUser, dbPassword, dbName)
-
+	dbSourceName := fmt.Sprintf("host=todo_postgres port=5432 user=daniel password=1q2w3e dbname=loggerdb sslmode=disable")
+	fmt.Println(dbName, dbUser, dbPassword)
 	db, err := sql.Open("postgres", dbSourceName)
 	if err != nil {
 		return nil, err
