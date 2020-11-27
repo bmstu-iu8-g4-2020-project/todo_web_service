@@ -20,6 +20,7 @@ services:
     ports:
       - 8080:8080
     environment:
+      # TODO: Change it to environment variables
       DB_NAME: todownik
       DB_USERNAME: aaaaaaaalesha
       DB_PASSWORD: Qwerty12345!
