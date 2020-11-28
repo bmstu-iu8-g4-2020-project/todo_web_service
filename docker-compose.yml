@@ -1,0 +1,34 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    container_name: todo_postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+  server:
+    container_name: todoapp
+    depends_on:
+      - db
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+  bot:
+    depends_on:
+      - server
+    build:
+      ./src/telegram_bot
+    environment:
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+      BOT_TOKEN: ${BOT_TOKEN}
+    restart: always

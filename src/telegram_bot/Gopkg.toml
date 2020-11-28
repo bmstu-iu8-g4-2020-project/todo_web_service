@@ -30,24 +30,12 @@
   version = "5.0.1"
 
 [[constraint]]
+  branch = "docker"
+  name = "github.com/bmstu-iu8-g4-2020-project/todo_web_service"
+
+[[constraint]]
   name = "github.com/briandowns/openweathermap"
   version = "0.16.0"
-
-[[constraint]]
-  name = "github.com/go-ozzo/ozzo-validation"
-  version = "3.6.0"
-
-[[constraint]]
-  name = "github.com/gorilla/mux"
-  version = "1.8.0"
-
-[[constraint]]
-  name = "github.com/lib/pq"
-  version = "1.8.0"
-
-[[constraint]]
-  name = "github.com/stretchr/testify"
-  version = "1.6.1"
 
 [prune]
   go-tests = true
