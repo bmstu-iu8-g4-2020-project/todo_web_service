@@ -6,7 +6,12 @@ services: docker
 
 language: go
 go:
-  - 1.7
+  - "1.7"
+#  - master
+
+env:
+  global:
+    GO111MODULE: "on"
 
 jobs:
   include:
