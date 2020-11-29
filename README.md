@@ -1,4 +1,5 @@
 # Курсовой проект.
+[![Build Status](https://travis-ci.org/bmstu-iu8-g4-2020-project/todo_web_service.svg?branch=master)](https://travis-ci.org/bmstu-iu8-g4-2020-project/todo_web_service)
 
 ## Тема: Разработка веб-сервиса по планировке пользовательских задач.
 
