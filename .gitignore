@@ -1,0 +1,9 @@
+# build files
+*.idea
+src/services/.idea
+
+# .env files
+config.env
+
+# dependencies
+vendor/
