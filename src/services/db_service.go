@@ -41,7 +41,6 @@ func SetDBConfig() string {
 	dbUser := os.Getenv("DB_USERNAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 
-	fmt.Println(dbName, dbUser, dbPassword)
 	return fmt.Sprintf("host=todo_postgres port=5432 user=%s password=%s dbname=%s sslmode=disable",
 		dbUser, dbPassword, dbName)
 }

@@ -16,10 +16,6 @@ import (
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/weather"
 )
 
-const (
-	SuburbanServiceUrl = utils.DefaultServiceUrl + "suburban"
-)
-
 func main() {
 	botToken := os.Getenv("BOT_TOKEN")
 
@@ -330,7 +326,6 @@ func main() {
 	}
 }
 
-
 var WeekdayScheduleKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData("Понедельник", "add_mon"),
@@ -390,4 +385,3 @@ var WeatherChooseForecastKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardButtonData(utils.EmojiMap+"По введённому месту", "forecast_place_name"),
 	),
 )
-
