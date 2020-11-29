@@ -4,6 +4,7 @@ const (
 	EmojiWarning   = "❗️"
 	EmojiCompleted = "✅"
 	EmojiReset     = "↩"
+	EmojiFire      = "🔥"
 
 	EmojiAttention = "📢"
 	EmojiFastTask  = "📌"
@@ -15,6 +16,7 @@ const (
 	EmojiPlace   = "🏫"
 	EmojiTime    = "⌚"
 
+	EmojiMap       = "🗺"
 	EmojiLocation  = "📍"
 	EmojiPaperclip = "📎"
 

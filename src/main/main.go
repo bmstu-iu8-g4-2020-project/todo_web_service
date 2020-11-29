@@ -1,27 +1,31 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
-
+	"fmt"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
+	"log"
+	"net/http"
 
-	"todo_web_service/src/handlers"
-	"todo_web_service/src/services"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/handlers"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/services"
+)
+
+const (
+	pathToScheme = "./src/database/init_db.sql"
 )
 
 func main() {
-	dbName := os.Getenv("DB_NAME")
-	dbUser := os.Getenv("DB_USERNAME")
-	dbPassword := os.Getenv("DB_PASSWORD")
+	conf := services.SetDBConfig()
 
-	db, err := services.NewDB(dbName, dbUser, dbPassword)
+	db, err := services.NewDB(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+
+	services.Setup(pathToScheme, db)
+	fmt.Println("Database is ready!")
 
 	env := &handlers.Environment{Db: db}
 

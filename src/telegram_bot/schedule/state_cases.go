@@ -10,10 +10,10 @@ import (
 
 	tgbotapi "github.com/Syfaro/telegram-bot-api"
 
-	"todo_web_service/src/models"
-	"todo_web_service/src/services"
-	"todo_web_service/src/telegram_bot/user"
-	"todo_web_service/src/telegram_bot/utils"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/models"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/services"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/user"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/utils"
 )
 
 func FillScheduleFuncs(stateFuncDict *map[int]user.StateFunc) {
@@ -229,7 +229,7 @@ func EnterDeleteWeekdayTask(update *tgbotapi.Update, bot **tgbotapi.BotAPI, user
 	}
 	if weekdaySchedule == nil {
 		(*bot).Send(tgbotapi.NewMessage(update.Message.Chat.ID,
-			fmt.Sprintf("Кажется, на %s задач не существует. Удалять тут нечего. Ещё разок? /clear_schedule_task",
+			fmt.Sprintf("Кажется, на %s задач не существует. Удалять тут нечего.",
 				strings.ToLower(update.Message.Text))))
 		user.ResetState(update.Message.From.ID, update.Message.From.UserName, userStates)
 

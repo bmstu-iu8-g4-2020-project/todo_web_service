@@ -8,7 +8,7 @@ import (
 	"os"
 	"time"
 
-	"todo_web_service/src/models"
+	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/models"
 )
 
 const (
