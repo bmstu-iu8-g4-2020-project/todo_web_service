@@ -10,7 +10,7 @@
   version = "v5.0.1"
 
 [[projects]]
-  branch = "docker"
+  branch = "master"
   digest = "1:af2f949401f010a5e0d74c78bef0e9259d6fe25434b931f52247742ca104ac19"
   name = "github.com/bmstu-iu8-g4-2020-project/todo_web_service"
   packages = [
