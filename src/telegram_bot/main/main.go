@@ -83,7 +83,7 @@ func main() {
 					}
 					_, _ = bot.Send(tgbotapi.NewMessage(chatId,
 						fmt.Sprintf("Здравствуйте, %s.\nДобро пожаловать!", userName)))
-					bot.Send(tgbotapi.NewStickerShare(chatId, utils.StickerWelcome))
+					_, _ = bot.Send(tgbotapi.NewStickerShare(chatId, utils.StickerWelcome))
 				} else {
 					user.SendEnteringNotFinished(&bot, chatId)
 				}
@@ -94,26 +94,12 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
-					_, _ = bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("%s, \nВаш 🆔: %s",
+					_, _ = bot.Send(tgbotapi.NewMessage(chatId, fmt.Sprintf("@%s\nВаш 🆔: %s",
 						respUser.UserName, strconv.Itoa(respUser.Id))))
 				} else {
 					user.SendEnteringNotFinished(&bot, chatId)
 				}
 				continue
-			//case "suburban":
-			//	if user.IsStartState(userStateCode) {
-			//		resp, err := http.Get(SuburbanServiceUrl)
-			//		if err != nil {
-			//			log.Fatal(err)
-			//		}
-			//
-			//		body, _ := ioutil.ReadAll(resp.Body)
-			//
-			//		_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
-			//	} else {
-			//		user.SendEnteringNotFinished(&bot, chatId)
-			//	}
-			//	continue
 			case "weather":
 				if user.IsStartState(userStateCode) {
 					msg := tgbotapi.NewMessage(chatId, "Я могу предоставить вам данные о погоде:")
@@ -237,6 +223,20 @@ func main() {
 						utils.EmojiWarning+"Вы не вводите данные. Вам нечего прерывать"))
 				}
 				continue
+				//case "suburban":
+				//	if user.IsStartState(userStateCode) {
+				//		resp, err := http.Get(SuburbanServiceUrl)
+				//		if err != nil {
+				//			log.Fatal(err)
+				//		}
+				//
+				//		body, _ := ioutil.ReadAll(resp.Body)
+				//
+				//		_, _ = bot.Send(tgbotapi.NewMessage(chatId, string(body)))
+				//	} else {
+				//		user.SendEnteringNotFinished(&bot, chatId)
+				//	}
+				//	continue
 			}
 		}
 
