@@ -2,16 +2,18 @@ package tests
 
 import (
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+	
+	"github.com/gorilla/mux"
+	
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/handlers"
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/models"
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/fast_task"
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/user"
 	"github.com/bmstu-iu8-g4-2020-project/todo_web_service/src/telegram_bot/utils"
-	"github.com/gorilla/mux"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
 )
 
 func AddUserHandler(w http.ResponseWriter, r *http.Request) {
