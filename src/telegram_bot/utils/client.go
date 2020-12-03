@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-const DefaultServiceUrl = "http://todoapp:8080/"
+var DefaultServiceUrl = "http://todoapp:8080/"
 
 var client = http.Client{
 	Timeout: time.Second * 15,

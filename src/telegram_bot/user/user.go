@@ -22,6 +22,7 @@ func InitUser(userId int, userName string) error {
 	if err != nil {
 		return err
 	}
+
 	url := utils.DefaultServiceUrl + "user/"
 	_, err = http.Post(url, "application/json", bytes.NewBuffer(bytesRepr))
 	if err != nil {

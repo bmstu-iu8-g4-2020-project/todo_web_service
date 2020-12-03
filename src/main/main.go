@@ -15,6 +15,8 @@ const (
 	pathToScheme = "./src/database/init_db.sql"
 )
 
+var r = mux.NewRouter()
+
 func main() {
 	conf := services.SetDBConfig()
 
@@ -28,8 +30,6 @@ func main() {
 	fmt.Println("Database is ready!")
 
 	env := &handlers.Environment{Db: db}
-
-	r := mux.NewRouter()
 
 	// User.
 	r.HandleFunc("/user/", env.AddUserHandler).Methods(http.MethodPost)

@@ -29,7 +29,7 @@ func AddToWeekday(userId int, userName string, userStates *map[int]user.State, s
 		return err
 	}
 
-	user.SetState(userId, userName, userStates, user.State{Code: user.SCHEDULE_ENTER_TITLE, Request: string(b)})
+	_ = user.SetState(userId, userName, userStates, user.State{Code: user.SCHEDULE_ENTER_TITLE, Request: string(b)})
 	return nil
 }
 
