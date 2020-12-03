@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:af2f949401f010a5e0d74c78bef0e9259d6fe25434b931f52247742ca104ac19"
+  digest = "1:450cce5751d227712a2ce8cf72644856f3831116695b4eae282663815faa633a"
   name = "github.com/bmstu-iu8-g4-2020-project/todo_web_service"
   packages = [
     "src/models",
@@ -20,7 +20,7 @@
     "src/telegram_bot/utils",
   ]
   pruneopts = "UT"
-  revision = "d9bc661d39ef743b8ed8176b7dd4499bc680628b"
+  revision = "84d740a793e156ba33ef2ebbd21e2b5d99db7211"
 
 [[projects]]
   digest = "1:acff6b00163d49b3ce63a35b84a4e3b8915738434c79826ba5ba64106de998b3"
