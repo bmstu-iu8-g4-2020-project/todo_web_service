@@ -17,7 +17,6 @@ jobs:
       script:
         - docker-compose build
         - docker-compose up -d
-        - sh scripts/test.sh
 
 notifications:
   email: false
