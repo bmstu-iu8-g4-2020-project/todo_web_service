@@ -1,3 +1,5 @@
+// Copyright 2020 aaaaaaaalesha <sks2311211@mail.ru>
+
 package utils
 
 const (
