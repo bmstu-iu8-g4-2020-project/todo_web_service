@@ -27,7 +27,7 @@
 
 ![FMS](assets/images/FMS_for_user_states.png)
 
-## Команды телеграм бота 🤗
+## Попробуй 🤗
 
 
 [![Bot and commands](assets/images/bot&commands.png)](https://t.me/todownik_bot "t.me/todownik_bot")
