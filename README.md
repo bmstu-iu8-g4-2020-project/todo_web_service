@@ -1,7 +1,13 @@
 # Разработка веб-сервиса по планировке пользовательских задач
 
+<img alt="Go" src="https://img.shields.io/badge/go-%2300ADD8.svg?&style=for-the-badge&logo=go&logoColor=white"/>
+<img alt="Postgres" src ="https://img.shields.io/badge/postgres-%23316192.svg?&style=for-the-badge&logo=postgresql&logoColor=white"/>
+<img alt="TravisCI" src="https://img.shields.io/badge/travisci%20-%232B2F33.svg?&style=for-the-badge&logo=travis&logoColor=white"/>
 [![Build Status](https://travis-ci.com/bmstu-iu8-g4-2020-project/todo_web_service.svg?branch=master)](https://travis-ci.com/bmstu-iu8-g4-2020-project/todo_web_service)
 [![Go Report Card](https://goreportcard.com/badge/github.com/bmstu-iu8-g4-2020-project/todo_web_service)](https://goreportcard.com/report/github.com/bmstu-iu8-g4-2020-project/todo_web_service)
+
+<img alt="Telegram" src="https://img.shields.io/badge/aaaaaaaalesha-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white" />
+
 
 ### Задание:
 
@@ -27,8 +33,7 @@
 
 ![FMS](assets/images/FMS_for_user_states.png)
 
-## Попробуй 🤗
-
+## Основные команды.
 
 [![Bot and commands](assets/images/bot&commands.png)](https://t.me/todownik_bot "t.me/todownik_bot")
 
