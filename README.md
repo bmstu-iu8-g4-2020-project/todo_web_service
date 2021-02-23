@@ -32,7 +32,7 @@
 
 ![FMS](assets/images/FMS_for_user_states.png)
 
-## Основные команды.
+## Основные команды
 
 [![Bot and commands](assets/images/bot&commands.png)](https://t.me/todownik_bot "t.me/todownik_bot")
 
