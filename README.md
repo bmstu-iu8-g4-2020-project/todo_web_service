@@ -36,6 +36,6 @@
 
 [![Bot and commands](assets/images/bot&commands.png)](https://t.me/todownik_bot "t.me/todownik_bot")
 
-```shell
+```
 Copyright 2020 aaaaaaaalesha 
 ```
